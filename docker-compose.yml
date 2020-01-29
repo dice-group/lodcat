@@ -1,0 +1,15 @@
+version: '3.1'
+services:
+  db:
+    image: postgres:12.1
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DB}
+    volumes:
+      - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ./postgres/data:/var/lib/postgresql/data
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080

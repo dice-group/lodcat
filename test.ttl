@@ -1,0 +1,12 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix : <http://example.com/> .
+
+:Cat a :Amimal .
+:Cat rdfs:label "cat"@en .
+:Cat rdfs:label "кот"@ru .
+:Cat rdfs:comment "An animal"@en .
+:Cat rdfs:comment "Животное"@ru .
+:Cat :label "other"@en .
+:Dog a :Amimal .
+:Dog rdfs:label "dog" .
+:Giraffe a :Animal .
