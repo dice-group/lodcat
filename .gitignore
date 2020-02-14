@@ -1,3 +1,6 @@
 *.class
+*.project
+*.settings
+*.classpath
 target/
 /postgres/data
