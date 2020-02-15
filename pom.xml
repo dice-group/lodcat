@@ -15,6 +15,7 @@
   </licenses>
   <inceptionYear>2020</inceptionYear>
   <properties>
+    <org.apache.jena.version>3.14.0</org.apache.jena.version>
     <org.aksw.simba.topicmodeling.version>0.0.3-SNAPSHOT</org.aksw.simba.topicmodeling.version>
     <junit.version>4.13</junit.version>
     <slf4j.version>1.7.10</slf4j.version>
@@ -61,6 +62,17 @@
   </dependencies>
   <dependencyManagement>
     <dependencies>
+      <!-- Apache Jena for processing RDF -->
+      <dependency>
+        <groupId>org.apache.jena</groupId>
+        <artifactId>jena-core</artifactId>
+        <version>${org.apache.jena.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.jena</groupId>
+        <artifactId>jena-arq</artifactId>
+        <version>${org.apache.jena.version}</version>
+      </dependency>
       <!-- Topicmodeling MALLET -->
       <dependency>
         <groupId>org.dice-research</groupId>
