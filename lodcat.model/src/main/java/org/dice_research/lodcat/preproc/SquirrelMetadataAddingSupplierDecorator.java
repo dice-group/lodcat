@@ -38,8 +38,8 @@ public class SquirrelMetadataAddingSupplierDecorator
 
     public static SquirrelMetadataAddingSupplierDecorator create(DocumentSupplier documentSource,
             File squirrelMetaData) {
-        Map<String, String> fileToUriMapping = Collections.synchronizedMap(new HashMap<>());
-        readFileToUriMapping(squirrelMetaData, fileToUriMapping);
+        Map<String, String> fileToUriMapping = new HashMap<>();
+        readFileToUriMapping(squirrelMetaData, Collections.synchronizedMap(fileToUriMapping));
         return new SquirrelMetadataAddingSupplierDecorator(documentSource, fileToUriMapping);
     }
 

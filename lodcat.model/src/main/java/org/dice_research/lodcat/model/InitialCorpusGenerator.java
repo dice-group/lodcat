@@ -4,17 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.apache.jena.vocabulary.RDF;
 import org.dice_research.lodcat.preproc.JenaBasedParsingSupplierDecorator;
+import org.dice_research.lodcat.preproc.UriFilteringSupplierDecorator;
+import org.dice_research.lodcat.uri.UriNamespaceFilter;
 import org.dice_research.topicmodeling.io.FolderReader;
 import org.dice_research.topicmodeling.io.xml.XmlWritingDocumentConsumer;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentFilteringSupplierDecorator;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentTextCreatingSupplierDecorator;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.GZipExtractingSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.PropertyRemovingSupplierDecorator;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.filter.StringContainingDocumentPropertyBasedFilter;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.filter.StringContainingDocumentPropertyBasedFilter.StringContainingDocumentPropertyBasedFilterType;
 import org.dice_research.topicmodeling.utils.doc.Document;
-import org.dice_research.topicmodeling.utils.doc.DocumentName;
+import org.dice_research.topicmodeling.utils.doc.DocumentInputStream;
 import org.dice_research.topicmodeling.utils.doc.DocumentRawData;
 import org.dice_research.topicmodeling.utils.doc.DocumentText;
 import org.slf4j.Logger;
@@ -29,21 +29,37 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class InitialCorpusGenerator {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(InitialCorpusGenerator.class);
-    
+
+    private static final String[] BLACKLISTED_NAMESPACES = new String[] { RDF.getURI() };
+
     protected void run(File inputFolder, File corpusFile) {
         FolderReader reader = new FolderReader(inputFolder);
         reader.setUseFolderNameAsCategory(true);
         DocumentSupplier supplier = reader;
+        // FIXME clarify whether we need this step. Might be possible, that we have .gz
+        // files
+        supplier = new GZipExtractingSupplierDecorator(supplier);
+        // FIXME the following filtering step is not necessary since the FolderReader
+        // should be able to use an IOFilter
         // Remove all files which do not end with .ttl
-        supplier = new DocumentFilteringSupplierDecorator(supplier, new StringContainingDocumentPropertyBasedFilter<>(
-                StringContainingDocumentPropertyBasedFilterType.ENDS_WITH, DocumentName.class, ".ttl", true));
-        
-        supplier = new DocumentTextCreatingSupplierDecorator(supplier);
+//        supplier = new DocumentFilteringSupplierDecorator(supplier, new StringContainingDocumentPropertyBasedFilter<>(
+//                StringContainingDocumentPropertyBasedFilterType.ENDS_WITH, DocumentName.class, ".ttl", true));
+
+        // Transform data into text
+        // supplier = new DocumentTextCreatingSupplierDecorator(supplier,
+        // StandardCharsets.UTF_8);
+
+        // Parse the RDF and keep a map of URIs to their counts
         supplier = new JenaBasedParsingSupplierDecorator(supplier);
+
+        // Filter URIs based on their namespace
+        supplier = new UriFilteringSupplierDecorator(supplier, new UriNamespaceFilter(BLACKLISTED_NAMESPACES, true));
+
+        // Remove unnecessary properties
         supplier = new PropertyRemovingSupplierDecorator(supplier,
-                Arrays.asList(DocumentRawData.class, DocumentText.class));
+                Arrays.asList(DocumentInputStream.class, DocumentRawData.class, DocumentText.class));
 
         XmlWritingDocumentConsumer consumer = XmlWritingDocumentConsumer
                 .createXmlWritingDocumentConsumer(corpusFile.getAbsoluteFile());

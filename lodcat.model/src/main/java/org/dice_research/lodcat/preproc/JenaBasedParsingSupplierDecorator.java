@@ -33,6 +33,9 @@
  */
 package org.dice_research.lodcat.preproc;
 
+import java.io.InputStream;
+
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.riot.Lang;
@@ -43,6 +46,7 @@ import org.dice_research.lodcat.data.UriCounts;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.AbstractPropertyAppendingDocumentSupplierDecorator;
 import org.dice_research.topicmodeling.utils.doc.Document;
+import org.dice_research.topicmodeling.utils.doc.DocumentInputStream;
 import org.dice_research.topicmodeling.utils.doc.DocumentText;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,26 +70,44 @@ public class JenaBasedParsingSupplierDecorator extends AbstractPropertyAppending
 
     @Override
     protected UriCounts createPropertyForDocument(Document document) {
-        DocumentText text = document.getProperty(DocumentText.class);
-        if (text == null) {
-            LOGGER.warn("Couldn't get needed DocumentText property from document. Returning null.");
-            return null;
+//        DocumentText text = document.getProperty(DocumentText.class);
+//        if (text == null) {
+//            LOGGER.warn("Couldn't get needed DocumentText property from document. Returning null.");
+//            return null;
+//        } else {
+//            return parseRDF(document, text.getText());
+//        }
+        DocumentInputStream dis = document.getProperty(DocumentInputStream.class);
+        if (dis == null) {
+            LOGGER.warn("Couldn't get needed DocumentInputStream property from document. Returning null.");
         } else {
-            return parseRDF(document, text.getText());
-        }
-    }
-
-    private UriCounts parseRDF(Document document, String text) {
-        UriCounter counter = new UriCounter();
-        RDFParser parser = RDFParser.create().base("").fromString(text).lang(Lang.TTL).build();
-        try {
-            parser.parse(counter);
-            return new UriCounts(counter.getUriCounts());
-        } catch (Exception e) {
-            LOGGER.error("Got an exception when parsing the content of document " + document.toString()
-                    + ". Returning null.", e);
+            try {
+                return parseRDF(document, dis.get());
+            } catch (Exception e) {
+                LOGGER.error("Got an exception when parsing the content of document " + document.toString()
+                        + ". Returning null.", e);
+            } finally {
+                IOUtils.closeQuietly(dis);
+            }
         }
         return null;
+    }
+
+    private UriCounts parseRDF(Document document, InputStream is) {
+//        UriCounter counter = new UriCounter();
+//        RDFParser parser = RDFParser.create().base("").fromString(text).lang(Lang.TTL).build();
+//        try {
+//            parser.parse(counter);
+//            return new UriCounts(counter.getUriCounts());
+//        } catch (Exception e) {
+//            LOGGER.error("Got an exception when parsing the content of document " + document.toString()
+//                    + ". Returning null.", e);
+//        }
+//        return null;
+        UriCounter counter = new UriCounter();
+        RDFParser parser = RDFParser.create().base("").source(is).lang(Lang.TTL).build();
+        parser.parse(counter);
+        return new UriCounts(counter.getUriCounts());
     }
 
     protected class UriCounter implements StreamRDF {
