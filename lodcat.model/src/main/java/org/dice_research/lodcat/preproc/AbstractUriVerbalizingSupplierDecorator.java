@@ -33,7 +33,7 @@ public abstract class AbstractUriVerbalizingSupplierDecorator extends AbstractPr
                 verbalizations = verbalizeUri(uriCounts.keys[i]);
                 // If the URI could be verbalized
                 if(verbalizations != null) {
-                    int count = (int) Math.floor(Math.log((double) uriCounts.values[i])/Math.log(2));
+                    int count = 1 + ((int) Math.floor(Math.log((double) uriCounts.values[i])/Math.log(2)));
                     int pos = 0;
                     for (int j = 0; j < count; ++j) {
                         builder.append(verbalizations[pos]);
