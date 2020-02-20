@@ -1,3 +1,5 @@
+include .env
+
 all: build test
 
 build:
@@ -11,3 +13,6 @@ test:
 
 extract:
 	find $$DATA_DIR -name '*.ttl.gz' ! -name 'http___w3id_org_squirrel_metadata.ttl.gz' -fprint /dev/stderr -exec sh -c 'zcat "{}" |docker run --rm -i --network lodcat_default --env-file=.env lodcat_extractor' \;
+
+generate:
+	DB_HOST=$(DB_HOST) DB_USER=$(DB_USER) DB_PASSWORD=$(DB_PASSWORD) DB_DB=$(DB_DB) java -Xmx8g -cp lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.InitialCorpusGenerator data corpus/corpus.xml

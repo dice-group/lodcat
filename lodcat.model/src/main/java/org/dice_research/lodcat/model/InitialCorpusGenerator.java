@@ -35,6 +35,10 @@ public class InitialCorpusGenerator {
 
     private static final String[] BLACKLISTED_NAMESPACES = new String[] { RDF.getURI() };
 
+    public static void main(String[] args) {
+        new InitialCorpusGenerator().run(new File(args[0]), new File(args[1]));
+    }
+
     protected void run(File inputFolder, File corpusFile) {
         FolderReader reader = new FolderReader(new StreamOpeningFileBasedDocumentFactory(), inputFolder);
         reader.setUseFolderNameAsCategory(true);
