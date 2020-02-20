@@ -38,7 +38,7 @@ public class UriNamespaceFilter implements UriFilter {
                 }
             }
         }
-        return !blacklist;
+        return blacklist;
     }
 
 }
