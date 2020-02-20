@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.apache.jena.vocabulary.RDF;
 import org.dice_research.lodcat.preproc.JenaBasedParsingSupplierDecorator;
+import org.dice_research.lodcat.preproc.SquirrelMetadataAddingSupplierDecorator;
 import org.dice_research.lodcat.preproc.UriFilteringSupplierDecorator;
 import org.dice_research.lodcat.uri.UriNamespaceFilter;
 import org.dice_research.topicmodeling.io.FolderReader;
@@ -43,6 +44,9 @@ public class InitialCorpusGenerator {
         FolderReader reader = new FolderReader(new StreamOpeningFileBasedDocumentFactory(), inputFolder);
         reader.setUseFolderNameAsCategory(true);
         DocumentSupplier supplier = reader;
+
+        supplier = SquirrelMetadataAddingSupplierDecorator.create(supplier, inputFolder);
+
         // FIXME clarify whether we need this step. Might be possible, that we have .gz
         // files
         supplier = new GZipExtractingSupplierDecorator(supplier);
