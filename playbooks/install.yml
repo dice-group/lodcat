@@ -1,0 +1,32 @@
+---
+  - hosts: all
+    become: yes
+    tasks:
+      - apt:
+          name:
+            - docker.io
+            - docker-compose
+            - make
+            - maven
+          update_cache: yes
+      - user:
+          append: true
+          name: lodcat_user
+          groups: docker
+  - hosts: all
+    tasks:
+      - git:
+          repo: 'https://github.com/dice-group/lodcat'
+          dest: lodcat
+          force: yes
+      - make:
+          target: build
+      - copy:
+          src: local/.env
+          dest: lodcat/.env
+      - file:
+          path: lodcat/data
+          state: directory
+      - unarchive:
+          src: ../crawled_data.tar
+          dest: /home/lodcat_user/lodcat/data

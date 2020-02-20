@@ -1,0 +1,6 @@
+---
+  - hosts: all
+    tasks:
+      - command: docker-compose up -d
+        args:
+          chdir: lodcat/
