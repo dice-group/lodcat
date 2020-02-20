@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.apache.jena.vocabulary.RDF;
 import org.dice_research.lodcat.preproc.JenaBasedParsingSupplierDecorator;
+import org.dice_research.lodcat.preproc.SQLUriVerbalizingSupplierDecorator;
 import org.dice_research.lodcat.preproc.SquirrelMetadataAddingSupplierDecorator;
 import org.dice_research.lodcat.preproc.UriFilteringSupplierDecorator;
 import org.dice_research.lodcat.uri.UriNamespaceFilter;
@@ -69,6 +70,8 @@ public class InitialCorpusGenerator {
         // Remove unnecessary properties
         supplier = new PropertyRemovingSupplierDecorator(supplier,
                 Arrays.asList(DocumentInputStream.class, DocumentRawData.class, DocumentText.class));
+
+        supplier = new SQLUriVerbalizingSupplierDecorator(supplier, new String[]{"label", "description"});
 
         XmlWritingDocumentConsumer consumer = XmlWritingDocumentConsumer
                 .createXmlWritingDocumentConsumer(corpusFile.getAbsoluteFile());
