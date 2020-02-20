@@ -32,7 +32,7 @@ public abstract class AbstractUriVerbalizingSupplierDecorator extends AbstractPr
                 // TODO Should we have a sorting for the verbalizations?
                 verbalizations = verbalizeUri((String)((Object[])uriCounts.keys)[i]);
                 // If the URI could be verbalized
-                if(verbalizations != null) {
+                if(verbalizations != null && verbalizations.length != 0) {
                     int count = 1 + ((int) Math.floor(Math.log((double) uriCounts.values[i])/Math.log(2)));
                     int pos = 0;
                     for (int j = 0; j < count; ++j) {
