@@ -8,7 +8,11 @@ import org.dice_research.topicmodeling.utils.doc.DocumentText;
 
 import com.carrotsearch.hppc.ObjectLongOpenHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class AbstractUriVerbalizingSupplierDecorator extends AbstractPropertyAppendingDocumentSupplierDecorator<DocumentText> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractUriVerbalizingSupplierDecorator.class);
 
     public AbstractUriVerbalizingSupplierDecorator(DocumentSupplier documentSource) {
         super(documentSource);
@@ -18,8 +22,8 @@ public abstract class AbstractUriVerbalizingSupplierDecorator extends AbstractPr
     protected DocumentText createPropertyForDocument(Document document) {
         UriCounts uriCounts = document.getProperty(UriCounts.class);
         if (uriCounts == null) {
-            throw new IllegalArgumentException(
-                    "Got document #" + document.getDocumentId() + " without UriCounts property.");
+            LOGGER.error("Got document #{} without UriCounts property.", document.getDocumentId());
+            return null;
         }
         return generateText(uriCounts.get());
     }
