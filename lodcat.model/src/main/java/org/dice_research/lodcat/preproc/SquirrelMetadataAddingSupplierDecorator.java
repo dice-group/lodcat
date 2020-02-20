@@ -49,8 +49,14 @@ public class SquirrelMetadataAddingSupplierDecorator
                     .forEach(f -> readFileToUriMapping(f, fileToUriMapping));
         } else {
             if (squirrelMetaData.isFile()) {
-                RDFDataMgr.parse(new SquirrelFileUriMapper(fileToUriMapping),
-                        "file://" + squirrelMetaData.getAbsolutePath());
+                if (squirrelMetaData.getName().equals("http___w3id_org_squirrel_metadata.ttl.gz")) {
+                    try {
+                        RDFDataMgr.parse(new SquirrelFileUriMapper(fileToUriMapping),
+                                "file://" + squirrelMetaData.getAbsolutePath());
+                    } catch (Exception e) {
+                        LOGGER.error("Exception while parsing metadata file.", e);
+                    }
+                }
             } else {
                 throw new IllegalArgumentException("Given file \"" + squirrelMetaData.toString()
                         + "\" is neither a directory nor a file. Aborting.");
