@@ -9,6 +9,7 @@ import org.dice_research.lodcat.preproc.JenaBasedParsingSupplierDecorator;
 import org.dice_research.lodcat.preproc.UriFilteringSupplierDecorator;
 import org.dice_research.lodcat.uri.UriNamespaceFilter;
 import org.dice_research.topicmodeling.io.FolderReader;
+import org.dice_research.topicmodeling.io.factories.StreamOpeningFileBasedDocumentFactory;
 import org.dice_research.topicmodeling.io.xml.XmlWritingDocumentConsumer;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.GZipExtractingSupplierDecorator;
@@ -35,7 +36,7 @@ public class InitialCorpusGenerator {
     private static final String[] BLACKLISTED_NAMESPACES = new String[] { RDF.getURI() };
 
     protected void run(File inputFolder, File corpusFile) {
-        FolderReader reader = new FolderReader(inputFolder);
+        FolderReader reader = new FolderReader(new StreamOpeningFileBasedDocumentFactory(), inputFolder);
         reader.setUseFolderNameAsCategory(true);
         DocumentSupplier supplier = reader;
         // FIXME clarify whether we need this step. Might be possible, that we have .gz
