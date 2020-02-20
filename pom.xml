@@ -131,5 +131,6 @@
   </build>
   <modules>
     <module>lodcat.extractor</module>
+    <module>lodcat.model</module>
   </modules>
 </project>
