@@ -68,7 +68,7 @@ public class SquirrelMetadataAddingSupplierDecorator
     protected DocumentURI createPropertyForDocument(Document document) {
         DocumentName name = document.getProperty(DocumentName.class);
         if (name != null) {
-            String fileName = name.get();
+            String fileName = "file:///var/squirrel/data/" + name.get();
             if (fileToUriMapping.containsKey(fileName)) {
                 return new DocumentURI(fileToUriMapping.get(fileName));
             } else {
