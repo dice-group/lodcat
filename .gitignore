@@ -2,9 +2,12 @@
 *.project
 *.settings
 *.classpath
+*.pyc
 *.retry
 *.tar
 target/
 /corpus
 /data
+/model
+/object
 /postgres/data

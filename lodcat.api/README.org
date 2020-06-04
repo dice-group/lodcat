@@ -1,0 +1,74 @@
+* LODCat label database access API
+
+** Endpoints
+*** /uri/details
+Retrieves all types of labels available for the specified URIs.
+*** /uri/labels
+Retrieves only labels.
+*** /uri/descriptions
+Retrieves only descriptions.
+** Example
+*** Request
+#+BEGIN_SRC sh
+curl --header "Accept: application/json" --header "Content-Type: application/json" --request POST --data '{"uris": ["http://dbpedia.org/resource/Berlin", "http://linkedgeodata.org/ontology/Dam"]}' http://lodcat-labels.cs.upb.de/uri/details
+#+END_SRC
+*** Response
+#+BEGIN_SRC js
+{
+  "http://dbpedia.org/resource/Berlin": {
+    "descriptions": [
+      "Berlin (/bərˈlɪn/, German: [bɛɐ̯ˈliːn] ) is the capital and the largest city of Germany as well as one of its 16 states. With a population of approximately 3.6 million people, Berlin is the second most populous city proper and the seventh most populous urban area in the European Union. Located in northeastern Germany on the banks of Rivers Spree and Havel, it is the centre of the Berlin-Brandenburg Metropolitan Region, which has about 6 million residents from more than 180 nations. Due to its location in the European Plain, Berlin is influenced by a temperate seasonal climate. Around one-third of the city's area is composed of forests, parks, gardens, rivers and lakes."
+    ],
+    "labels": [
+      "Berlin"
+    ]
+  },
+  "http://linkedgeodata.org/ontology/Dam": {
+    "labels": [
+      "Aizsprosts",
+      "Baraj",
+      "Brana",
+      "Chaoser",
+      "Dæmning",
+      "Dam",
+      "Damm",
+      "Đập",
+      "Demning",
+      "Dica",
+      "Diga",
+      "Dighe",
+      "Digue",
+      "Encoro",
+      "Gát",
+      "Jez",
+      "Nasyp",
+      "Pato",
+      "Pendë",
+      "Přehrada",
+      "Presa",
+      "Priehrada,hrádza",
+      "Represa",
+      "Saplad",
+      "Staudamm",
+      "Tama",
+      "Tamm",
+      "Urtegia",
+      "Užtvanka",
+      "Vatnsaflsvirkjunin",
+      "Zagaśica",
+      "Φράγμα",
+      "Брана",
+      "Дамба",
+      "Сёлт",
+      "კაშხალი",
+      "סכר",
+      "سد",
+      "سدّ",
+      "ಅಣೆಕಟ್ಟು",
+      "ダム",
+      "水坝",
+      "水壩"
+    ]
+  }
+}
+#+END_SRC
