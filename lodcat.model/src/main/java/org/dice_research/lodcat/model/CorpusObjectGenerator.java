@@ -15,6 +15,7 @@ import org.dice_research.topicmodeling.io.xml.stream.StreamBasedXmlDocumentSuppl
 import org.dice_research.topicmodeling.lang.postagging.StandardEnglishPosTaggingTermFilter;
 import org.dice_research.topicmodeling.preprocessing.ListCorpusCreator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.AbstractPropertyAppendingDocumentSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentFilteringSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentWordCountingSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.PropertyRemovingSupplierDecorator;
@@ -83,8 +84,17 @@ public class CorpusObjectGenerator {
             }
         });
 
-        // FIXME clarify Preprocessing
-        // FIXME the following steps expect that the text is already tokenized (in a very easy way).
+        supplier = new AbstractPropertyAppendingDocumentSupplierDecorator<SimpleTokenizedText>(supplier) {
+            @Override
+            protected SimpleTokenizedText createPropertyForDocument(Document document) {
+                DocumentText text = document.getProperty(DocumentText.class);
+                if (text != null) {
+                    return new SimpleTokenizedText(text.getText().split("\\s+"));
+                }
+                LOGGER.error("Document {} has no DocumentText", document);
+                return null;
+            }
+        };
 
         // Filter the stop words
         supplier = new SimpleTokenizedTextTermFilter(supplier, StandardEnglishPosTaggingTermFilter.getInstance());
