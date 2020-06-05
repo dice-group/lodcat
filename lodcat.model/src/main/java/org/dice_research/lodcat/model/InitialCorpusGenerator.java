@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.apache.jena.vocabulary.RDF;
 import org.dice_research.lodcat.preproc.JenaBasedParsingSupplierDecorator;
+import org.dice_research.lodcat.preproc.NameFilteringSupplierDecorator;
 import org.dice_research.lodcat.preproc.SQLUriVerbalizingSupplierDecorator;
 import org.dice_research.lodcat.preproc.SquirrelMetadataAddingSupplierDecorator;
 import org.dice_research.lodcat.preproc.UriFilteringSupplierDecorator;
@@ -45,6 +46,8 @@ public class InitialCorpusGenerator {
         FolderReader reader = new FolderReader(new StreamOpeningFileBasedDocumentFactory(), inputFolder);
         reader.setUseFolderNameAsCategory(true);
         DocumentSupplier supplier = reader;
+
+        supplier = new NameFilteringSupplierDecorator(supplier, docName -> !docName.getName().equals("http___w3id_org_squirrel_metadata.ttl.gz"));
 
         supplier = SquirrelMetadataAddingSupplierDecorator.create(supplier, inputFolder);
 
