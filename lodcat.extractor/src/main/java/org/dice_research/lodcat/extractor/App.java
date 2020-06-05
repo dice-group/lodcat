@@ -21,7 +21,7 @@ public class App {
         "http://www.w3.org/2000/01/rdf-schema#comment", "description");
 
     public static void main(String[] args) throws Exception {
-        Connection con = DriverManager.getConnection("jdbc:postgresql://db/" + System.getenv("DB_DB"), System.getenv("DB_USER"), System.getenv("DB_PASSWORD"));
+        Connection con = DriverManager.getConnection("jdbc:postgresql://" + System.getenv("DB_HOST") + "/" + System.getenv("DB_DB"), System.getenv("DB_USER"), System.getenv("DB_PASSWORD"));
 
         try (PreparedStatement stmt = con.prepareStatement("INSERT INTO labels (uri, type, value, count) VALUES (?, ?::labelType, ?, ?) ON CONFLICT DO NOTHING")) {
             PipedRDFIterator iter = new PipedRDFIterator();
