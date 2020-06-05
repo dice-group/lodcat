@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.dice_research</groupId>
   <artifactId>lodcat.extractor</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.0.1-SNAPSHOT</version>
   <name>lodcat.extractor</name>
   <description>Extracts labels and descriptions</description>
   <parent>
     <groupId>org.dice_research</groupId>
     <artifactId>lodcat</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
   </parent>
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
