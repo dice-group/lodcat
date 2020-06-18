@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+import pika
+import subprocess
+
+def processFile(file):
+    if file.endswith('/http___w3id_org_dice_research_squirrel_metadata.ttl'):
+        return
+    # subprocess.check_call(["bash", "-c", "zcat data/*/*/" + str(body) + ".gz ||true |java -jar lodcat.extractor/target/lodcat.extractor.jar"])
+    subprocess.check_call(["bash", "-c", "java -jar lodcat.extractor/target/lodcat.extractor.jar <" + file])
+
+def callback(ch, method, properties, body):
+    file = body.decode('utf-8')
+    try:
+        processFile(file)
+        print("%r done" % file)
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+    except subprocess.CalledProcessError:
+        print("%r failed" % file)
+        # We will just immediately receive it again...
+        # ch.basic_nack(delivery_tag=method.delivery_tag)
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+channel = connection.channel()
+channel.queue_declare(queue='file', durable=True)
+print('Waiting for messages. To exit press CTRL+C')
+channel.basic_qos(prefetch_count=1)
+channel.basic_consume(queue='file', on_message_callback=callback)
+channel.start_consuming()

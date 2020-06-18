@@ -7,7 +7,7 @@
 *.tar
 target/
 /corpus
-/data
+/data*
 /model
 /object
 /postgres/data

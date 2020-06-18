@@ -8,6 +8,7 @@
             - docker-compose
             - make
             - maven
+            - python3-pip
           update_cache: yes
       - user:
           append: true
@@ -15,6 +16,7 @@
           groups: docker
   - hosts: all
     tasks:
+      - command: pip3 install pika
       - git:
           repo: 'https://github.com/dice-group/lodcat'
           dest: lodcat
