@@ -3,7 +3,7 @@ include .env
 all: build test
 
 build:
-	mvn package
+	mvn --batch-mode package
 	docker build --tag=lodcat_extractor lodcat.extractor
 
 test:
