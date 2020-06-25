@@ -32,7 +32,7 @@ def details(type):
         details[uri][type_pl].append(value)
     if request.accept_mimetypes['text/html']:
         return render_template('details.html', details=details)
-    if request.accept_mimetypes['application/json']:
+    if request.accept_mimetypes['application/json'] or request.accept_mimetypes['application/json; charset=UTF-8']:
         return jsonify(details), '200 OK'
     abort(406)
 
