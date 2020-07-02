@@ -72,3 +72,6 @@ curl --header "Accept: application/json" --header "Content-Type: application/jso
   }
 }
 #+END_SRC
+
+** See also
+- [[../lodcat.api-java][Java client library]]

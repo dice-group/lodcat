@@ -1,0 +1,8 @@
+* Example for the Java API client
+
+** Files
+- [[./pom.xml]]
+- [[./src/main/java/org/dice_research/lodcat/api/Example.java][Example.java]]
+
+** See also
+- [[../lodcat.api-java][Java API client library]]

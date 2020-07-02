@@ -1,0 +1,25 @@
+* Java API client
+
+** Installation
+#+BEGIN_SRC xml
+<dependency>
+  <groupId>org.dice_research</groupId>
+  <artifactId>lodcat.api-java</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+</dependency>
+#+END_SRC
+
+** Usage
+#+BEGIN_SRC java
+import org.dice_research.lodcat.api.Client;
+
+try (Client client = new Client()) {
+    ArrayList<String> uris = new ArrayList<>();
+    uris.add("http://dbpedia.org/resource/Berlin");
+    System.err.println(client.getDetails(uris));
+}
+#+END_SRC
+
+** See also
+- [[../lodcat.api][API documentation]]
+- [[../lodcat.api-java-example][Example project]]
