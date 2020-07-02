@@ -24,6 +24,6 @@ public class ResponseURIData {
 
     @Override
     public String toString() {
-        return "{labels=" + labels.toString() + ", descriptions=" + descriptions.toString() + "}";
+        return "{labels=" + labels + ", descriptions=" + descriptions + "}";
     }
 }

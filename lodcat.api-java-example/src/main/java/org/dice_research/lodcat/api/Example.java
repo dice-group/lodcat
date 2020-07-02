@@ -10,7 +10,7 @@ public class Example {
             uris.add("http://ontologi.es/days#TuesdayInterval");
             System.err.println(client.getDetails(uris));
             uris.add("http://ontologi.es/rail/void#dataset_0.1");
-            System.err.println(client.getDetails(uris));
+            System.err.println(client.getLabels(uris));
         }
     }
 }

@@ -20,6 +20,8 @@ public class Client implements Closeable {
 
     private static String DEFAULT_BASE = "http://lodcat-labels.cs.upb.de/";
     private static String DETAILS_PATH = "uri/details";
+    private static String LABELS_PATH = "uri/labels";
+    private static String DESCRIPTIONS_PATH = "uri/descriptions";
 
     private String baseURL;
     private CloseableHttpClient httpClient;
@@ -35,9 +37,9 @@ public class Client implements Closeable {
         this(DEFAULT_BASE);
     }
 
-    public Map<String, ResponseURIData> getDetails(Collection<String> uris) throws IOException {
+    private Map<String, ResponseURIData> getDetails(String apiPath, Collection<String> uris) throws IOException {
         RequestData data = new RequestData(uris);
-        HttpPost post = new HttpPost(new URL(new URL(baseURL), DETAILS_PATH).toString());
+        HttpPost post = new HttpPost(new URL(new URL(baseURL), apiPath).toString());
         post.setEntity(new StringEntity(mapper.writeValueAsString(data), ContentType.APPLICATION_JSON));
         post.setHeader("Accept", ContentType.APPLICATION_JSON.toString());
 
@@ -46,6 +48,18 @@ public class Client implements Closeable {
         ) {
             return mapper.readValue(EntityUtils.toString(response.getEntity()), responseDataType);
         }
+    }
+
+    public Map<String, ResponseURIData> getDetails(Collection<String> uris) throws IOException {
+        return getDetails(DETAILS_PATH, uris);
+    }
+
+    public Map<String, ResponseURIData> getLabels(Collection<String> uris) throws IOException {
+        return getDetails(LABELS_PATH, uris);
+    }
+
+    public Map<String, ResponseURIData> getDescriptions(Collection<String> uris) throws IOException {
+        return getDetails(DESCRIPTIONS_PATH, uris);
     }
 
     @Override
