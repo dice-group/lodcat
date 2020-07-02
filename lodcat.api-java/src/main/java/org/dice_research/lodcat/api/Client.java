@@ -15,6 +15,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+/**
+ * Client class for the labels API.
+ */
 public class Client implements Closeable {
     private static TypeReference<Map<String, ResponseURIData>> responseDataType = new TypeReference<>(){};
 
@@ -28,11 +31,17 @@ public class Client implements Closeable {
 
     private ObjectMapper mapper = new ObjectMapper();
 
+    /**
+     * Constructor for a custom API address.
+     */
     public Client(String baseURL) {
         this.baseURL = baseURL;
         httpClient = HttpClients.createDefault();
     }
 
+    /**
+     * Constructor for the default API address.
+     */
     public Client() {
         this(DEFAULT_BASE);
     }
@@ -50,14 +59,35 @@ public class Client implements Closeable {
         }
     }
 
+    /**
+     * Get all available details for a collection of specified URIs.
+     *
+     * @param uris a collection of URIs to look up.
+     * @return a map from URIs to details objects
+     * @throws IOException
+     */
     public Map<String, ResponseURIData> getDetails(Collection<String> uris) throws IOException {
         return getDetails(DETAILS_PATH, uris);
     }
 
+    /**
+     * Get labels for a collection of specified URIs.
+     *
+     * @param uris a collection of URIs to look up.
+     * @return a map from URIs to details objects
+     * @throws IOException
+     */
     public Map<String, ResponseURIData> getLabels(Collection<String> uris) throws IOException {
         return getDetails(LABELS_PATH, uris);
     }
 
+    /**
+     * Get descriptions for a collection of specified URIs.
+     *
+     * @param uris a collection of URIs to look up.
+     * @return a map from URIs to details objects
+     * @throws IOException
+     */
     public Map<String, ResponseURIData> getDescriptions(Collection<String> uris) throws IOException {
         return getDetails(DESCRIPTIONS_PATH, uris);
     }
