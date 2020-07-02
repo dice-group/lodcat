@@ -15,18 +15,20 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-public class Client {
+public class Client implements Closeable {
     private static TypeReference<Map<String, ResponseURIData>> responseDataType = new TypeReference<>(){};
 
     private static String DEFAULT_BASE = "http://lodcat-labels.cs.upb.de/";
     private static String DETAILS_PATH = "uri/details";
 
     private String baseURL;
+    private CloseableHttpClient httpClient;
 
     private ObjectMapper mapper = new ObjectMapper();
 
     public Client(String baseURL) {
         this.baseURL = baseURL;
+        httpClient = HttpClients.createDefault();
     }
 
     public Client() {
@@ -40,10 +42,14 @@ public class Client {
         post.setHeader("Accept", ContentType.APPLICATION_JSON.toString());
 
         try (
-            CloseableHttpClient httpClient = HttpClients.createDefault();
             CloseableHttpResponse response = httpClient.execute(post)
         ) {
             return mapper.readValue(EntityUtils.toString(response.getEntity()), responseDataType);
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        httpClient.close();
     }
 }
