@@ -139,6 +139,7 @@
     </pluginManagement>
   </build>
   <modules>
+    <module>lodcat.api</module>
     <module>lodcat.api-java</module>
     <module>lodcat.api-java-example</module>
     <module>lodcat.extractor</module>

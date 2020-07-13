@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   api:
-    build: lodcat.api
+    image: lodcat.api
     environment:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
