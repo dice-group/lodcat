@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from flask import Flask, abort, jsonify, redirect, render_template, request
-from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy import create_engine, func, select, MetaData, Table
 from urllib.parse import quote, urlunparse
 import os
 
@@ -14,6 +14,14 @@ labels = Table('labels', metadata, autoload=True)
 @app.route('/')
 def index():
     return redirect('https://github.com/dice-group/lodcat/tree/testing/lodcat.api')
+
+@app.route('/status')
+def status():
+    status = {}
+    status['total'] = select([func.count()]).select_from(labels).scalar()
+    if request.accept_mimetypes['text/html']:
+        return render_template('status.html', status=status)
+    abort(406)
 
 @app.route('/uri/<type>s', methods=['POST'])
 def details(type):
