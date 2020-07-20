@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.dice_research.topicmodeling.algorithm.mallet.MalletLdaWrapper;
 import org.dice_research.topicmodeling.algorithms.ModelingAlgorithm;
+import org.dice_research.topicmodeling.algorithms.ProbabilisticWordTopicModel;
 import org.dice_research.topicmodeling.algorithms.ProbTopicModelingAlgorithmStateSupplier;
 import org.dice_research.topicmodeling.io.CorpusReader;
 import org.dice_research.topicmodeling.io.gzip.GZipCorpusReaderDecorator;
@@ -77,6 +78,12 @@ public class ModelGenerator {
                 LOGGER.info("Performed step #{}", i);
             }
         }
+
+        LOGGER.info("Writing top words file...");
+        ModelCSVWriter modelCsvWriter = new ModelCSVWriter((ProbTopicModelingAlgorithmStateSupplier) algorithm, modelFile.getParentFile(), false);
+        ModelCSVWriter.TopWordContainer topWords = modelCsvWriter.processWordTopicProbabilities((ProbabilisticWordTopicModel) algorithm.getModel());
+        modelCsvWriter.writeTopWords((ProbabilisticWordTopicModel) algorithm.getModel(), topWords);
+
         LOGGER.info("Writing state file...");
         GZipProbTopicModelingAlgorithmStateWriter writer = new GZipProbTopicModelingAlgorithmStateWriter();
         writer.writeProbTopicModelState((ProbTopicModelingAlgorithmStateSupplier) algorithm, modelFile);
