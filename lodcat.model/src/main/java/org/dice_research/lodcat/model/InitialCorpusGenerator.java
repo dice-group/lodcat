@@ -9,6 +9,7 @@ import org.dice_research.lodcat.preproc.JenaBasedParsingSupplierDecorator;
 import org.dice_research.lodcat.preproc.NameFilteringSupplierDecorator;
 import org.dice_research.lodcat.preproc.SQLUriVerbalizingSupplierDecorator;
 import org.dice_research.lodcat.preproc.SquirrelMetadataAddingSupplierDecorator;
+import org.dice_research.lodcat.preproc.TextCleaningSupplierDecorator;
 import org.dice_research.lodcat.preproc.UriFilteringSupplierDecorator;
 import org.dice_research.lodcat.uri.UriNamespaceFilter;
 import org.dice_research.topicmodeling.io.FolderReader;
@@ -75,6 +76,8 @@ public class InitialCorpusGenerator {
                 Arrays.asList(DocumentInputStream.class, DocumentRawData.class, DocumentText.class));
 
         supplier = new SQLUriVerbalizingSupplierDecorator(supplier, new String[]{"label", "description"});
+
+        supplier = new TextCleaningSupplierDecorator(supplier);
 
         XmlWritingDocumentConsumer consumer = XmlWritingDocumentConsumer
                 .createXmlWritingDocumentConsumer(corpusFile.getAbsoluteFile());
