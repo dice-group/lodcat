@@ -27,3 +27,10 @@ generate-object:
 
 generate-model:
 	java -Xmx8g -cp lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.ModelGenerator object/object.gz model/model.gz 5
+
+measure-quality: palmetto-0.1.0.jar
+	./topwords4palmetto <model/top_words.csv >model/top_words.palmetto
+	java -jar palmetto-0.1.0.jar $$HOME/.local/share/palmetto/indexes/wikipedia_bd C_A model/top_words.palmetto
+
+palmetto-0.1.0.jar:
+	wget -O $@ https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/palmetto-0.1.0-jar-with-dependencies.jar

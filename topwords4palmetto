@@ -1,0 +1,14 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+my @topics = split /;/, <>;
+my @lines;
+while (<>) {
+    chomp;
+    push @lines, [split /;/];
+}
+for (@topics) {
+    my @words = map { shift @$_ } @lines;
+    /^topic/ and print "@words\n";
+}

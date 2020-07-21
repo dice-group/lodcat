@@ -2,6 +2,7 @@
 *.project
 *.settings
 *.classpath
+*.jar
 *.pyc
 *.retry
 *.tar
