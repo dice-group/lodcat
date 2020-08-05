@@ -30,7 +30,7 @@ generate-model:
 
 measure-quality: palmetto-0.1.0.jar
 	./topwords4palmetto <model/top_words.csv >model/top_words.palmetto
-	java -jar palmetto-0.1.0.jar $$HOME/.local/share/palmetto/indexes/wikipedia_bd C_A model/top_words.palmetto
+	java -jar palmetto-0.1.0.jar $$HOME/.local/share/palmetto/indexes/wikipedia_bd C_P model/top_words.palmetto
 
 palmetto-0.1.0.jar:
 	wget -O $@ https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/palmetto-0.1.0-jar-with-dependencies.jar
