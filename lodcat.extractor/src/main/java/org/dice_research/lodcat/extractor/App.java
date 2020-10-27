@@ -27,8 +27,17 @@ public class App {
 
         try (PreparedStatement stmt = con.prepareStatement("INSERT INTO labels (uri, type, value, count) VALUES (?, ?::labelType, ?, ?) ON CONFLICT DO NOTHING")) {
             PipedRDFIterator iter = new PipedRDFIterator();
-            StreamRDF input = new PipedTriplesStream(iter);
-            RDFParser.create().lang(Lang.TURTLE).source(new InputStreamReader(System.in, "UTF8")).build().parse(input);
+            StreamRDF streamRDF = new PipedTriplesStream(iter);
+            Reader reader = new BufferedReader(new InputStreamReader(System.in, "UTF8"));
+
+            // Typically, data is read from a PipedRDFIterator by one thread (the consumer) and data is written to the corresponding PipedRDFStream by some other thread (the producer).
+            // Attempting to use both objects from a single thread is not recommended, as it may deadlock the thread.
+            // https://jena.apache.org/documentation/javadoc/arq/org/apache/jena/riot/lang/PipedRDFIterator.html
+            new Thread(new Runnable() {
+                public void run() {
+                    RDFParser.create().lang(Lang.TURTLE).source(reader).build().parse(streamRDF);
+                }
+            }).start();
 
             int extracted = 0;
             int total = 0;
