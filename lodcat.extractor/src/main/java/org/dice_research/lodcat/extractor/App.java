@@ -46,19 +46,22 @@ public class App {
                 String type = types.get(t.getPredicate().getURI());
                 if (type != null) {
                     Node subject = t.getSubject();
-                    if (subject.isURI()) {
-                        String uri = subject.getURI();
-                        LiteralLabel literal = t.getObject().getLiteral();
-                        String language = literal.language();
-                        if (language.equals("") || language.equals("en")) {
-                            String value = (String) literal.getValue();
-                            stmt.setString(1, uri);
-                            stmt.setString(2, type);
-                            stmt.setString(3, value);
-                            stmt.setInt(4, -1); // count
-                            stmt.executeUpdate();
+                    Node object = t.getObject();
+                    if (subject.isURI() && object.isLiteral()) {
+                        LiteralLabel literal = object.getLiteral();
+                        if (literal.getDatatype() == null) {
+                            String language = literal.language();
+                            if (language.equals("") || language.equals("en")) {
+                                String uri = subject.getURI();
+                                String value = (String) literal.getValue();
+                                stmt.setString(1, uri);
+                                stmt.setString(2, type);
+                                stmt.setString(3, value);
+                                stmt.setInt(4, -1); // count
+                                stmt.executeUpdate();
 
-                            extracted += 1;
+                                extracted += 1;
+                            }
                         }
                     }
                 }
