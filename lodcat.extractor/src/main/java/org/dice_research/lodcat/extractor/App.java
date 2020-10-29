@@ -49,7 +49,8 @@ public class App {
                     Node object = t.getObject();
                     if (subject.isURI() && object.isLiteral()) {
                         LiteralLabel literal = object.getLiteral();
-                        if (literal.getDatatype() == null) {
+                        String datatypeURI = literal.getDatatypeURI();
+                        if (datatypeURI == null || datatypeURI.equals("http://www.w3.org/2001/XMLSchema#string") || datatypeURI.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")) {
                             String language = literal.language();
                             if (language.equals("") || language.equals("en")) {
                                 String uri = subject.getURI();
