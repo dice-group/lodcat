@@ -3,7 +3,11 @@ import pika
 import subprocess
 
 def processFile(file):
-    if file.endswith('/http___w3id_org_dice_research_squirrel_metadata.ttl'):
+    if 'squirrel_metadata' in file:
+        return
+    try:
+        subprocess.check_call(["bash", "-c", "ls -lh " + file])
+    except subprocess.CalledProcessError:
         return
     # subprocess.check_call(["bash", "-c", "zcat data/*/*/" + str(body) + ".gz ||true |java -jar lodcat.extractor/target/lodcat.extractor.jar"])
     subprocess.check_call(["bash", "-c", "java -jar lodcat.extractor/target/lodcat.extractor.jar <" + file])

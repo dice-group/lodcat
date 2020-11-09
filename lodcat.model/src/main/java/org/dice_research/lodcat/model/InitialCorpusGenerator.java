@@ -48,7 +48,7 @@ public class InitialCorpusGenerator {
         reader.setUseFolderNameAsCategory(true);
         DocumentSupplier supplier = reader;
 
-        supplier = new NameFilteringSupplierDecorator(supplier, docName -> !docName.getName().equals("http___w3id_org_squirrel_metadata.ttl.gz"));
+        supplier = new NameFilteringSupplierDecorator(supplier, docName -> !docName.getName().contains("squirrel_metadata"));
 
         supplier = SquirrelMetadataAddingSupplierDecorator.create(supplier, inputFolder);
 
