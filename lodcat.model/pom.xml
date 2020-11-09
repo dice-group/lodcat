@@ -43,6 +43,11 @@
       <groupId>org.dice-research</groupId>
       <artifactId>topicmodeling.io</artifactId>
     </dependency>
+    <!-- Squirrel API -->
+    <dependency>
+      <groupId>org.dice-research</groupId>
+      <artifactId>squirrel.api</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <finalName>${project.name}</finalName>

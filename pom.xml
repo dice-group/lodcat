@@ -17,6 +17,7 @@
   <properties>
     <org.apache.jena.version>3.14.0</org.apache.jena.version>
     <org.aksw.simba.topicmodeling.version>0.0.3-SNAPSHOT</org.aksw.simba.topicmodeling.version>
+    <org.dice-research.squirrel.version>0.4.0</org.dice-research.squirrel.version>
     <junit.version>4.13</junit.version>
     <slf4j.version>1.7.10</slf4j.version>
   </properties>
@@ -84,6 +85,12 @@
         <groupId>org.dice-research</groupId>
         <artifactId>topicmodeling.io</artifactId>
         <version>${org.aksw.simba.topicmodeling.version}</version>
+      </dependency>
+      <!-- Squirrel API -->
+      <dependency>
+        <groupId>org.dice-research</groupId>
+        <artifactId>squirrel.api</artifactId>
+        <version>${org.dice-research.squirrel.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

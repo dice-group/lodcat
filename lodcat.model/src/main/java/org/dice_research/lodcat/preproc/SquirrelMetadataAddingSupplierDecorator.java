@@ -13,6 +13,7 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFBase;
 import org.apache.jena.sparql.core.Quad;
+import org.dice_research.squirrel.vocab.Squirrel;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.AbstractPropertyAppendingDocumentSupplierDecorator;
 import org.dice_research.topicmodeling.utils.doc.Document;
@@ -98,9 +99,6 @@ public class SquirrelMetadataAddingSupplierDecorator
      */
     protected static class SquirrelFileUriMapper extends StreamRDFBase implements StreamRDF {
 
-        public static final Node CONTAINS_DATA_OF = ResourceFactory
-                .createProperty("http://w3id.org/squirrel/vocab#containsDataOf").asNode();
-
         private Map<String, String> fileToUriMapping;
 
         public SquirrelFileUriMapper(Map<String, String> fileToUriMapping) {
@@ -109,7 +107,7 @@ public class SquirrelMetadataAddingSupplierDecorator
 
         @Override
         public void triple(Triple triple) {
-            if (triple.predicateMatches(CONTAINS_DATA_OF)) {
+            if (triple.predicateMatches(Squirrel.containsDataOf.asNode())) {
                 fileToUriMapping.put(triple.getSubject().getURI(), triple.getObject().getURI());
             }
         }
