@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.jena.vocabulary.RDF;
+import org.dice_research.lodcat.data.UriCounts;
 import org.dice_research.lodcat.preproc.JenaBasedParsingSupplierDecorator;
 import org.dice_research.lodcat.preproc.NameFilteringSupplierDecorator;
 import org.dice_research.lodcat.preproc.SQLUriVerbalizingSupplierDecorator;
@@ -82,6 +83,8 @@ public class InitialCorpusGenerator {
 
         XmlWritingDocumentConsumer consumer = XmlWritingDocumentConsumer
                 .createXmlWritingDocumentConsumer(corpusFile.getAbsoluteFile());
+
+        consumer.registerParseableDocumentProperty(UriCounts.class);
 
         Document document = supplier.getNextDocument();
         int count = 0;
