@@ -54,7 +54,8 @@ public class InitialCorpusGenerator {
 
         // FIXME clarify whether we need this step. Might be possible, that we have .gz
         // files
-        supplier = new GZipExtractingSupplierDecorator(supplier);
+        // supplier = new GZipExtractingSupplierDecorator(supplier);
+
         // FIXME the following filtering step is not necessary since the FolderReader
         // should be able to use an IOFilter
         // Remove all files which do not end with .ttl
