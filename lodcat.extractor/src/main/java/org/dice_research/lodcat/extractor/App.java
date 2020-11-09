@@ -35,7 +35,11 @@ public class App {
             // https://jena.apache.org/documentation/javadoc/arq/org/apache/jena/riot/lang/PipedRDFIterator.html
             new Thread(new Runnable() {
                 public void run() {
-                    RDFParser.create().lang(Lang.TURTLE).source(reader).build().parse(streamRDF);
+                    try {
+                        RDFParser.create().lang(Lang.TURTLE).source(reader).build().parse(streamRDF);
+                    } catch (org.apache.jena.riot.RiotException e) {
+                        System.err.println("Exception in the parser thread: " + e);
+                    }
                 }
             }).start();
 
