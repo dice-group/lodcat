@@ -28,6 +28,16 @@ generate-object:
 generate-model:
 	java -Xmx8g -cp lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.ModelGenerator object/object.gz model/model.gz 5
 
+generate-labels:
+	./topwords4labelling <model/top_words.csv >model/top_words.labelling
+	docker run \
+	-v `pwd`/model/top_words.labelling:/data/topics.csv \
+	--name netl dicegroup/netl
+	mkdir -p labels
+	docker cp netl:/usr/src/app/model_run/output_unsupervised labels/unsupervised
+	docker cp netl:/usr/src/app/model_run/output_supervised labels/supervised
+	docker rm netl
+
 measure-quality: palmetto-0.1.0.jar
 	./topwords4palmetto <model/top_words.csv >model/top_words.palmetto
 	java -jar palmetto-0.1.0.jar $$HOME/.local/share/palmetto/indexes/wikipedia_bd C_P model/top_words.palmetto

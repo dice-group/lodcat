@@ -1,0 +1,27 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+$" = ",";
+
+my @topics = split /;/, <>;
+my @lines;
+while (<>) {
+    chomp;
+    push @lines, [split /;/];
+}
+
+print "topic_id";
+for (my $i = 0; $i < @{$lines[0]}; $i++) {
+    print ",term$i";
+}
+print "\n";
+
+my $topicID = 0;
+for (@topics) {
+    my @words = map { shift @$_ } @lines;
+    /^topic/ and do {
+        print "$topicID,@words\n";
+        $topicID++;
+    }
+}
