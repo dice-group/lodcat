@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import pika
 import subprocess
+import sys
 
 def processFile(file):
     if 'squirrel_metadata' in file:
@@ -20,9 +21,9 @@ def callback(ch, method, properties, body):
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except subprocess.CalledProcessError:
         print("%r failed" % file)
+        ch.basic_nack(delivery_tag=method.delivery_tag)
         # We will just immediately receive it again...
-        # ch.basic_nack(delivery_tag=method.delivery_tag)
-        ch.basic_ack(delivery_tag=method.delivery_tag)
+        sys.exit(1)
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(
     host='localhost',
