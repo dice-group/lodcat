@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDFS;
 import org.dice_research.lodcat.data.UriCounts;
 import org.dice_research.lodcat.preproc.JenaBasedParsingSupplierDecorator;
 import org.dice_research.lodcat.preproc.NameFilteringSupplierDecorator;
@@ -38,7 +40,11 @@ public class InitialCorpusGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InitialCorpusGenerator.class);
 
-    private static final String[] BLACKLISTED_NAMESPACES = new String[] { RDF.getURI() };
+    private static final String[] BLACKLISTED_NAMESPACES = new String[] {
+        OWL.getURI(),
+        RDF.getURI(),
+        RDFS.getURI(),
+    };
 
     public static void main(String[] args) {
         new InitialCorpusGenerator().run(new File(args[0]), new File(args[1]));
