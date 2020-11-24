@@ -22,7 +22,7 @@ public class TextCleaningSupplierDecorator extends AbstractPropertyEditingDocume
 
     @Override
     protected void editDocumentProperty(DocumentText docText) {
-        String text = docText.getText();
+        String text = docText.getText().toLowerCase();
         text = PATTERN.matcher(text).replaceAll(REPLACEMENT);
         docText.setText(text);
     }
