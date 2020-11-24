@@ -41,6 +41,7 @@ public abstract class AbstractUriVerbalizingSupplierDecorator extends AbstractPr
                     int pos = 0;
                     for (int j = 0; j < count; ++j) {
                         builder.append(verbalizations[pos]);
+                        builder.append(" ");
                         ++pos;
                         if(pos >= verbalizations.length) {
                             pos = 0;
