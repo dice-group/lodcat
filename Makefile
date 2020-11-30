@@ -6,7 +6,10 @@ build:
 	mvn --batch-mode package
 	docker build --tag=lodcat_extractor lodcat.extractor
 
-test:
+test: test-extractor
+	mvn test
+
+test-extractor:
 	docker-compose up -d
 	sleep 1
 	docker run --rm -i --network lodcat_default --env-file=.env lodcat_extractor <test.ttl
