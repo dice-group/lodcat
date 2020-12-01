@@ -65,16 +65,20 @@
         <artifactId>jena-arq</artifactId>
         <version>${org.apache.jena.version}</version>
       </dependency>
-      <!-- Topicmodeling MALLET -->
+      <!-- Topicmodeling -->
       <dependency>
         <groupId>org.dice-research</groupId>
         <artifactId>topicmodeling.mallet</artifactId>
         <version>${org.aksw.simba.topicmodeling.version}</version>
       </dependency>
-      <!-- Topicmodeling IO -->
       <dependency>
         <groupId>org.dice-research</groupId>
         <artifactId>topicmodeling.io</artifactId>
+        <version>${org.aksw.simba.topicmodeling.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.dice-research</groupId>
+        <artifactId>topicmodeling.stanford-nlp</artifactId>
         <version>${org.aksw.simba.topicmodeling.version}</version>
       </dependency>
       <!-- Squirrel API -->

@@ -23,19 +23,6 @@ public class TextCleaningSupplierDecorator extends AbstractPropertyEditingDocume
     );
     private static final String REPLACEMENT = "";
 
-    private static final Pattern WORD_FILTER = Pattern.compile(Stream.of(new String[]{
-        "subject",
-        "predicate",
-        "object",
-        "property",
-        "resource",
-        "class",
-        "sub",
-        "subclass",
-        "subproperty",
-        "example",
-    }).map(s -> "\\b" + s + "\\b").collect(Collectors.joining("|")));
-
     public TextCleaningSupplierDecorator(DocumentSupplier documentSource) {
         super(documentSource, DocumentText.class);
     }
@@ -46,7 +33,6 @@ public class TextCleaningSupplierDecorator extends AbstractPropertyEditingDocume
         text = Normalizer.normalize(text, Normalizer.Form.NFD);
         text = PATTERN.matcher(text).replaceAll(REPLACEMENT);
         text = text.toLowerCase();
-        text = WORD_FILTER.matcher(text).replaceAll("");
         docText.setText(text);
     }
 }

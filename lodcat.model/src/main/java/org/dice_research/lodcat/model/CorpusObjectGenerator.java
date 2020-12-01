@@ -5,21 +5,25 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.stanford.nlp.util.PropertiesUtils;
 import org.aksw.simba.tapioca.data.SimpleTokenizedText;
-import org.aksw.simba.tapioca.preprocessing.SimpleTokenizedTextTermFilter;
-import org.aksw.simba.tapioca.preprocessing.SimpleWordIndexingSupplierDecorator;
 import org.dice_research.topicmodeling.io.CorpusWriter;
 import org.dice_research.topicmodeling.io.gzip.GZipCorpusWriterDecorator;
 import org.dice_research.topicmodeling.io.java.CorpusObjectWriter;
 import org.dice_research.topicmodeling.io.xml.stream.StreamBasedXmlDocumentSupplier;
 import org.dice_research.topicmodeling.lang.postagging.StandardEnglishPosTaggingTermFilter;
-import org.dice_research.topicmodeling.preprocessing.ListCorpusCreator;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
+import org.dice_research.topicmodeling.lang.postagging.StanfordPipelineWrapper;
+import org.dice_research.topicmodeling.lang.postagging.StopwordlistBasedTermFilter;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.AbstractPropertyAppendingDocumentSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentFilteringSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentWordCountingSupplierDecorator;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.PropertyRemovingSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.filter.DocumentFilter;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.ner.NerPropagatingSupplierDecorator;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.PropertyRemovingSupplierDecorator;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.TermFilteringSupplierDecorator;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.WordIndexingSupplierDecorator;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
+import org.dice_research.topicmodeling.preprocessing.ListCorpusCreator;
 import org.dice_research.topicmodeling.utils.corpus.Corpus;
 import org.dice_research.topicmodeling.utils.corpus.DocumentListCorpus;
 import org.dice_research.topicmodeling.utils.corpus.properties.CorpusVocabulary;
@@ -28,6 +32,7 @@ import org.dice_research.topicmodeling.utils.doc.DocumentName;
 import org.dice_research.topicmodeling.utils.doc.DocumentProperty;
 import org.dice_research.topicmodeling.utils.doc.DocumentText;
 import org.dice_research.topicmodeling.utils.doc.DocumentURI;
+import org.dice_research.topicmodeling.utils.doc.TermTokenizedText;
 import org.dice_research.topicmodeling.utils.vocabulary.SimpleVocabulary;
 import org.dice_research.topicmodeling.utils.vocabulary.Vocabulary;
 import org.slf4j.Logger;
@@ -84,6 +89,10 @@ public class CorpusObjectGenerator {
             }
         });
 
+        supplier = new NerPropagatingSupplierDecorator(supplier,
+                StanfordPipelineWrapper.createStanfordPipelineWrapper(
+                PropertiesUtils.asProperties("annotators", "tokenize,ssplit,pos,lemma"), null));
+
         supplier = new AbstractPropertyAppendingDocumentSupplierDecorator<SimpleTokenizedText>(supplier) {
             @Override
             protected SimpleTokenizedText createPropertyForDocument(Document document) {
@@ -96,16 +105,22 @@ public class CorpusObjectGenerator {
             }
         };
 
-        // Filter the stop words
-        supplier = new SimpleTokenizedTextTermFilter(supplier, StandardEnglishPosTaggingTermFilter.getInstance());
+        // Filter standard stop words
+        supplier = new TermFilteringSupplierDecorator(supplier,
+                StandardEnglishPosTaggingTermFilter.getInstance());
+
+        // Filter custom stop words
+        supplier = new TermFilteringSupplierDecorator(supplier,
+                new StopwordlistBasedTermFilter(getClass().getClassLoader().getResourceAsStream("stopwords.txt")));
+
         // Filter empty documents
         supplier = new DocumentFilteringSupplierDecorator(supplier, new DocumentFilter() {
 
             public boolean isDocumentGood(Document document) {
-                SimpleTokenizedText text = document.getProperty(SimpleTokenizedText.class);
+                TermTokenizedText text = document.getProperty(TermTokenizedText.class);
                 DocumentName name = document.getProperty(DocumentName.class);
                 DocumentURI uri = document.getProperty(DocumentURI.class);
-                if ((text != null) && (text.getTokens().length > 0)) {
+                if ((text != null) && (text.getTermTokenizedText().size() > 0)) {
                     LOGGER.info("{} ({}) is accepted as part of the corpus", name != null ? name.get() : "null",
                             uri != null ? uri.get() : "null");
                     return true;
@@ -118,13 +133,13 @@ public class CorpusObjectGenerator {
         });
 
         Vocabulary vocabulary = new SimpleVocabulary();
-        supplier = new SimpleWordIndexingSupplierDecorator(supplier, vocabulary);
+        supplier = new WordIndexingSupplierDecorator(supplier, vocabulary);
         supplier = new DocumentWordCountingSupplierDecorator(supplier);
 
         // Since this property is not serializeable we have to remove it
         List<Class<? extends DocumentProperty>> propertiesToRemove = new ArrayList<Class<? extends DocumentProperty>>();
         propertiesToRemove.add(DocumentText.class);
-        propertiesToRemove.add(SimpleTokenizedText.class);
+        propertiesToRemove.add(TermTokenizedText.class);
         supplier = new PropertyRemovingSupplierDecorator(supplier, propertiesToRemove);
 
         ListCorpusCreator<List<Document>> preprocessor = new ListCorpusCreator<List<Document>>(supplier,

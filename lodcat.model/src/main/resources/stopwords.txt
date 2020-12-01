@@ -1,0 +1,10 @@
+subject
+predicate
+object
+property
+resource
+class
+sub
+subclass
+subproperty
+example

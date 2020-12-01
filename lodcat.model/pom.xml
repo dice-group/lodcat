@@ -33,15 +33,23 @@
       <groupId>org.apache.jena</groupId>
       <artifactId>jena-arq</artifactId>
     </dependency>
-    <!-- Topicmodeling MALLET -->
+    <!-- Topicmodeling -->
     <dependency>
       <groupId>org.dice-research</groupId>
       <artifactId>topicmodeling.mallet</artifactId>
     </dependency>
-    <!-- Topicmodeling IO -->
     <dependency>
       <groupId>org.dice-research</groupId>
       <artifactId>topicmodeling.io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>edu.stanford.nlp</groupId>
+      <artifactId>stanford-corenlp</artifactId>
+      <version>3.8.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.dice-research</groupId>
+      <artifactId>topicmodeling.stanford-nlp</artifactId>
     </dependency>
     <!-- Squirrel API -->
     <dependency>

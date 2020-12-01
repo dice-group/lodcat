@@ -51,11 +51,4 @@ public class TextCleaningSupplierDecoratorTest {
         instance.apply(doc);
         assertEquals("one", doc.getProperty(DocumentText.class).getText());
     }
-
-    @Test
-    public void testWordFilter() {
-        doc.addProperty(new DocumentText("nice Resource"));
-        instance.apply(doc);
-        assertEquals("nice ", doc.getProperty(DocumentText.class).getText());
-    }
 }
