@@ -93,18 +93,6 @@ public class CorpusObjectGenerator {
                 StanfordPipelineWrapper.createStanfordPipelineWrapper(
                 PropertiesUtils.asProperties("annotators", "tokenize,ssplit,pos,lemma"), null));
 
-        supplier = new AbstractPropertyAppendingDocumentSupplierDecorator<SimpleTokenizedText>(supplier) {
-            @Override
-            protected SimpleTokenizedText createPropertyForDocument(Document document) {
-                DocumentText text = document.getProperty(DocumentText.class);
-                if (text != null) {
-                    return new SimpleTokenizedText(text.getText().split("\\s+"));
-                }
-                LOGGER.error("Document {} has no DocumentText", document);
-                return null;
-            }
-        };
-
         // Filter standard stop words
         supplier = new TermFilteringSupplierDecorator(supplier,
                 StandardEnglishPosTaggingTermFilter.getInstance());
