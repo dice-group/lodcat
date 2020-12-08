@@ -1,15 +1,37 @@
 package org.dice_research.lodcat.preproc;
 
+import java.util.Arrays;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.AbstractPropertyEditingDocumentSupplierDecorator;
 import org.dice_research.topicmodeling.utils.doc.Document;
 import org.dice_research.topicmodeling.utils.doc.DocumentText;
 import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
+@RunWith(Parameterized.class)
 public class TextCleaningSupplierDecoratorTest {
+    private String input;
+    private String expected;
     private AbstractPropertyEditingDocumentSupplierDecorator<DocumentText> instance;
     private Document doc;
+
+    @Parameterized.Parameters
+    public static Iterable<Object[]> data() {
+        return Arrays.asList(new Object[][] {
+            {"ABC xyz", "abc xyz"},
+            {"abc, def-xyz!", "abc def-xyz"},
+            {"<p>some <a href='http://example.com/'>html tags</a> here<br>", "some html tags here"},
+            {"übung café", "ubung cafe"},
+            {"one пример", "one"},
+        });
+    }
+
+    public TextCleaningSupplierDecoratorTest(String input, String expected) {
+        this.input = input;
+        this.expected = expected;
+    }
 
     @Before
     public void setUp() {
@@ -18,37 +40,9 @@ public class TextCleaningSupplierDecoratorTest {
     }
 
     @Test
-    public void testLowercase() {
-        doc.addProperty(new DocumentText("ABC xyz"));
+    public void test() {
+        doc.addProperty(new DocumentText(input));
         instance.apply(doc);
-        assertEquals("abc xyz", doc.getProperty(DocumentText.class).getText());
-    }
-
-    @Test
-    public void testPunctuation() {
-        doc.addProperty(new DocumentText("abc, def-xyz!"));
-        instance.apply(doc);
-        assertEquals("abc def-xyz", doc.getProperty(DocumentText.class).getText());
-    }
-
-    @Test
-    public void testTags() {
-        doc.addProperty(new DocumentText("<p>some <a href='http://example.com/'>html tags</a> here<br>"));
-        instance.apply(doc);
-        assertEquals("some html tags here", doc.getProperty(DocumentText.class).getText());
-    }
-
-    @Test
-    public void testNormalization() {
-        doc.addProperty(new DocumentText("übung café"));
-        instance.apply(doc);
-        assertEquals("ubung cafe", doc.getProperty(DocumentText.class).getText());
-    }
-
-    @Test
-    public void testOtherAlphabets() {
-        doc.addProperty(new DocumentText("one пример"));
-        instance.apply(doc);
-        assertEquals("one", doc.getProperty(DocumentText.class).getText());
+        assertEquals(expected, doc.getProperty(DocumentText.class).getText());
     }
 }
