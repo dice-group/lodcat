@@ -23,7 +23,8 @@ public class SQLUriVerbalizingSupplierDecorator extends AbstractUriVerbalizingSu
             Connection con = DriverManager.getConnection("jdbc:postgresql://" + System.getenv("DB_HOST") + "/" + System.getenv("DB_DB"), System.getenv("DB_USER"), System.getenv("DB_PASSWORD"));
             select = con.prepareStatement("SELECT value FROM labels WHERE uri=? AND type=?::labelType");
         } catch (SQLException e) {
-            LOGGER.error("Error while getting connection", e);
+            LOGGER.error("Error while getting connection");
+            throw new RuntimeException(e);
         }
     }
 
