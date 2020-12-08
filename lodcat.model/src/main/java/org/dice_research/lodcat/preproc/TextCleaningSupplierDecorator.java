@@ -16,12 +16,19 @@ import org.slf4j.LoggerFactory;
 public class TextCleaningSupplierDecorator extends AbstractPropertyEditingDocumentSupplierDecorator<DocumentText> {
     private static final Logger LOGGER = LoggerFactory.getLogger(TextCleaningSupplierDecorator.class);
 
-    private static final Pattern PATTERN = Pattern.compile(
-            "</?\\w[^>]*>"
-            + "|" + "\\W+(?=\\s|$)"
-            + "|" + "[^\\p{ASCII}]"
+    private static final Pattern NOTHING = Pattern.compile(
+            "</?\\w[^>]*>" // HTML tag-lookalikes
+            + "|" + "\\W+(?=\\s|$)" // non-word symbols before the whitespace
+            + "|" + "(?<=\\s|^)\\W+" // non-word symbols after the whitespace
+            + "|" + "[^\\p{ASCII}]" // non-ASCII
+            + "|" + "http\\S{3,}" // link-lookalikes
+            + "|" + "\\S*@\\S*" // e-mail-lookalikes
     );
-    private static final String REPLACEMENT = "";
+
+    private static final Pattern WORD_SEPARATOR = Pattern.compile(
+            "[/_.]"
+            + "|" + "(?<=[a-z])(?=[A-Z])" // camelCase
+    );
 
     public TextCleaningSupplierDecorator(DocumentSupplier documentSource) {
         super(documentSource, DocumentText.class);
@@ -31,7 +38,8 @@ public class TextCleaningSupplierDecorator extends AbstractPropertyEditingDocume
     protected void editDocumentProperty(DocumentText docText) {
         String text = docText.getText();
         text = Normalizer.normalize(text, Normalizer.Form.NFD);
-        text = PATTERN.matcher(text).replaceAll(REPLACEMENT);
+        text = NOTHING.matcher(text).replaceAll("");
+        text = WORD_SEPARATOR.matcher(text).replaceAll(" ");
         text = text.toLowerCase();
         docText.setText(text);
     }

@@ -25,6 +25,11 @@ public class TextCleaningSupplierDecoratorTest {
             {"<p>some <a href='http://example.com/'>html tags</a> here<br>", "some html tags here"},
             {"übung café", "ubung cafe"},
             {"one пример", "one"},
+            {"under_score sl/ash do.t", "under score sl ash do t"},
+            {"#sharp it's 'nothing", "sharp it's nothing"},
+            {"some very.nice@address.at.local", "some "},
+            {"some camelCaseWords AndCapitalizedWords", "some camel case words and capitalized words"},
+            {"follow http://example.com/test/index.html#abc this", "follow  this"},
         });
     }
 
