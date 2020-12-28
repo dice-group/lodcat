@@ -17,9 +17,52 @@ import org.apache.jena.riot.system.StreamRDF;
  *
  */
 public class App {
-    static Map<String, String> types = Map.of(
-        "http://www.w3.org/2000/01/rdf-schema#label", "label",
-        "http://www.w3.org/2000/01/rdf-schema#comment", "description");
+    // https://github.com/dice-group/Tapioca/blob/d8dfef11575114408b62cc8a72dfb4e50702810e/tapioca.core/src/main/java/org/aksw/simba/tapioca/preprocessing/labelretrieving/RDFClientLabelRetriever.java#L42-L77
+    private static final String NAMING_PROPERTIES[] = { "http://www.w3.org/2000/01/rdf-schema#label",
+            "http://xmlns.com/foaf/0.1/nick",
+            "http://purl.org/dc/elements/1.1/title",
+            "http://purl.org/rss/1.0/title",
+            "http://xmlns.com/foaf/0.1/name",
+            "http://purl.org/dc/terms/title",
+            "http://www.geonames.org/ontology#name",
+            "http://xmlns.com/foaf/0.1/nickname",
+            "http://swrc.ontoware.org/ontology#name",
+            "http://sw.cyc.com/CycAnnotations_v1#label",
+            "http://rdf.opiumfield.com/lastfm/spec#title",
+            "http://www.proteinontology.info/po.owl#ResidueName",
+            "http://www.proteinontology.info/po.owl#Atom",
+            "http://www.proteinontology.info/po.owl#Element",
+            "http://www.proteinontology.info/po.owl#AtomName",
+            "http://www.proteinontology.info/po.owl#ChainName",
+            "http://purl.uniprot.org/core/fullName",
+            "http://purl.uniprot.org/core/title",
+            "http://www.aktors.org/ontology/portal#has-title",
+            "http://www.w3.org/2004/02/skos/core#prefLabel",
+            "http://www.aktors.org/ontology/portal#name",
+            "http://xmlns.com/foaf/0.1/givenName",
+            "http://www.w3.org/2000/10/swap/pim/contact#fullName",
+            "http://xmlns.com/foaf/0.1/surName",
+            "http://swrc.ontoware.org/ontology#title",
+            "http://swrc.ontoware.org/ontology#booktitle",
+            "http://www.aktors.org/ontology/portal#has-pretty-name",
+            "http://purl.uniprot.org/core/orfName",
+            "http://purl.uniprot.org/core/name",
+            "http://www.daml.org/2003/02/fips55/fips-55-ont#name",
+            "http://www.geonames.org/ontology#alternateName",
+            "http://purl.uniprot.org/core/locusName",
+            "http://www.w3.org/2004/02/skos/core#altLabel",
+            "http://creativecommons.org/ns#attributionName",
+            "http://www.aktors.org/ontology/portal#family-name",
+            "http://www.aktors.org/ontology/portal#full-name" };
+
+    private static Map<String, String> types = new HashMap<>();
+
+    static {
+        for (String uri : NAMING_PROPERTIES) {
+            types.put(uri, "label");
+        }
+        types.put("http://www.w3.org/2000/01/rdf-schema#comment", "description");
+    }
 
     public static void main(String[] args) throws Exception {
         String conStr = "jdbc:postgresql://" + System.getenv("DB_HOST") + "/" + System.getenv("DB_DB");
