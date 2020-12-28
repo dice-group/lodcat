@@ -10,8 +10,7 @@ def processFile(file):
         subprocess.check_call(["ls", "-lh", file])
     except subprocess.CalledProcessError:
         return
-    # subprocess.check_call(["bash", "-c", "zcat data/*/*/" + str(body) + ".gz ||true |java -jar lodcat.extractor/target/lodcat.extractor.jar"])
-    subprocess.check_call(["bash", "-c", "java -jar lodcat.extractor/target/lodcat.extractor.jar <" + file])
+    subprocess.check_call(["java", "-jar", "lodcat.extractor/target/lodcat.extractor.jar", file])
 
 def callback(ch, method, properties, body):
     file = body.decode('utf-8')

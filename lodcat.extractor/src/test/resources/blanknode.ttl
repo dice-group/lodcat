@@ -1,0 +1,5 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://example.com/s> rdfs:label "Test" .
+_:example rdfs:label "Test" .
+<http://example.com/s> rdfs:label _:example .

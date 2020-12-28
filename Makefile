@@ -1,13 +1,21 @@
 include .env
 
+HDT_FILES := $(addprefix lodcat.extractor/src/test/resources/, \
+simple.hdt \
+lang.hdt \
+lang2.hdt \
+quotes.hdt \
+blanknode.hdt \
+)
+
 all: build test
 
 build:
 	mvn --batch-mode package
 	docker build --tag=lodcat_extractor lodcat.extractor
 
-test: test-extractor
-	mvn test
+test: $(HDT_FILES)
+	mvn --quiet test
 
 test-extractor:
 	docker-compose up -d
@@ -17,12 +25,12 @@ test-extractor:
 
 queue-all-files:
 	docker exec lodcat_rabbitmq rabbitmqadmin declare queue name=file durable=true
-	find "$$DATA_DIR" -name '*.ttl' |docker exec -i lodcat_rabbitmq xargs -n 1 -I {} rabbitmqadmin publish routing_key=file payload="{}"
+	find "$$DATA_DIR" -type f |docker exec -i lodcat_rabbitmq xargs -n 1 -I {} rabbitmqadmin publish routing_key=file payload="{}"
 
 extract:
 	DB_HOST=$(DB_HOST) DB_USER=$(DB_USER) DB_PASSWORD=$(DB_PASSWORD) DB_DB=$(DB_DB) ./extract_wrapper
 
-generate-corpus:
+generate-corpus: lodcat.model/target/lodcat.model.jar
 	DB_HOST=$(DB_HOST) DB_USER=$(DB_USER) DB_PASSWORD=$(DB_PASSWORD) DB_DB=$(DB_DB) java -Xmx8g -cp lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.InitialCorpusGenerator "$$DATA_DIR" corpus/corpus.xml
 
 generate-object:
@@ -45,5 +53,11 @@ measure-quality: palmetto-0.1.0.jar
 	./topwords4palmetto <model/top_words.csv >model/top_words.palmetto
 	java -jar palmetto-0.1.0.jar $$HOME/.local/share/palmetto/indexes/wikipedia_bd C_P model/top_words.palmetto
 
+%/target/%.jar:
+	mvn --projects $* package
+
 palmetto-0.1.0.jar:
 	wget -O $@ https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/palmetto-0.1.0-jar-with-dependencies.jar
+
+%.hdt: %.ttl
+	rdf2hdt -rdftype turtle $< $@

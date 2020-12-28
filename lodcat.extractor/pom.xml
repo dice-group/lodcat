@@ -33,6 +33,15 @@
       <artifactId>jena-arq</artifactId>
       <version>3.14.0</version>
     </dependency>
+    <dependency>
+      <groupId>org.dice-research</groupId>
+      <artifactId>rdfdetector</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <finalName>${project.name}</finalName>
