@@ -7,7 +7,7 @@ def processFile(file):
     if 'squirrel_metadata' in file:
         return
     try:
-        subprocess.check_call(["bash", "-c", "ls -lh " + file])
+        subprocess.check_call(["ls", "-lh", file])
     except subprocess.CalledProcessError:
         return
     # subprocess.check_call(["bash", "-c", "zcat data/*/*/" + str(body) + ".gz ||true |java -jar lodcat.extractor/target/lodcat.extractor.jar"])
