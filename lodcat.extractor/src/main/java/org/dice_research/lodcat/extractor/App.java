@@ -15,6 +15,7 @@ import org.apache.jena.riot.lang.PipedRDFIterator;
 import org.apache.jena.riot.lang.PipedTriplesStream;
 import org.apache.jena.riot.RDFParser;
 import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.vocabulary.*;
 import org.dice_research.rdfdetector.RdfSerializationDetector;
 import org.rdfhdt.hdt.hdt.HDT;
 import org.rdfhdt.hdt.hdt.HDTManager;
@@ -73,13 +74,16 @@ public class App {
     private static final Pattern LANG = Pattern.compile("en(?:-.*)?");
     private static final Pattern HDT_LITERAL = Pattern.compile("\"(.*)\"(?:@" + LANG.pattern() + ")?", Pattern.DOTALL);
 
+    private static final String stringDatatype = XSD.xstring.getURI();
+    private static final String langStringDatatype = RDF.langString.getURI();
+
     private static PreparedStatement stmt;
 
     static {
         for (String uri : NAMING_PROPERTIES) {
             types.put(uri, "label");
         }
-        types.put("http://www.w3.org/2000/01/rdf-schema#comment", "description");
+        types.put(RDFS.comment.getURI(), "description");
     }
 
     public static void main(String[] args) throws Exception {
@@ -172,7 +176,7 @@ public class App {
                     if (object.isLiteral()) {
                         LiteralLabel literal = object.getLiteral();
                         String datatypeURI = literal.getDatatypeURI();
-                        if (datatypeURI == null || datatypeURI.equals("http://www.w3.org/2001/XMLSchema#string") || datatypeURI.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#langString")) {
+                        if (datatypeURI == null || datatypeURI.equals(stringDatatype) || datatypeURI.equals(langStringDatatype)) {
                             String language = literal.language();
                             if (language.equals("") || LANG.matcher(language).matches()) {
                                 String[] args = new String[] {
