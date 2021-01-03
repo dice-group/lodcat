@@ -16,10 +16,8 @@ def callback(ch, method, properties, body):
     file = body.decode('utf-8')
     try:
         processFile(file)
-        print("%r done" % file)
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except subprocess.CalledProcessError:
-        print("%r failed" % file)
         ch.basic_nack(delivery_tag=method.delivery_tag)
         # We will just immediately receive it again...
         sys.exit(1)
