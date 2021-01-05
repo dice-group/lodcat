@@ -17,7 +17,7 @@ public class TextCleaningSupplierDecoratorTest {
     private AbstractPropertyEditingDocumentSupplierDecorator<DocumentText> instance;
     private Document doc;
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name="{0}")
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] {
             {"ABC xyz", "abc xyz"},
