@@ -2,7 +2,6 @@ package org.dice_research.lodcat.preproc;
 
 import java.sql.*;
 import java.util.*;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.AbstractPropertyAppendingDocumentSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
 
 import org.slf4j.Logger;
@@ -43,6 +42,8 @@ public class SQLUriVerbalizingSupplierDecorator extends AbstractUriVerbalizingSu
                 LOGGER.error("Error while executing the query", e);
             }
         }
+        LOGGER.trace("Verbalizing \"{}\" as {}", uri, values);
+
         return values.toArray(new String[]{});
     }
 

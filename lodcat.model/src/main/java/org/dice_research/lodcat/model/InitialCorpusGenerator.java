@@ -10,10 +10,12 @@ import org.apache.jena.vocabulary.RDFS;
 import org.dice_research.lodcat.data.UriCounts;
 import org.dice_research.lodcat.preproc.JenaBasedParsingSupplierDecorator;
 import org.dice_research.lodcat.preproc.NameFilteringSupplierDecorator;
+import org.dice_research.lodcat.preproc.SimpleUriVerbalizingSupplierDecorator;
 import org.dice_research.lodcat.preproc.SQLUriVerbalizingSupplierDecorator;
 import org.dice_research.lodcat.preproc.SquirrelMetadataAddingSupplierDecorator;
 import org.dice_research.lodcat.preproc.TextCleaningSupplierDecorator;
 import org.dice_research.lodcat.preproc.UriFilteringSupplierDecorator;
+import org.dice_research.lodcat.preproc.UriVerbalizingSupplierDecoratorFacade;
 import org.dice_research.lodcat.uri.UriNamespaceFilter;
 import org.dice_research.topicmodeling.io.FolderReader;
 import org.dice_research.topicmodeling.io.factories.StreamOpeningFileBasedDocumentFactory;
@@ -83,7 +85,10 @@ public class InitialCorpusGenerator {
         supplier = new PropertyRemovingSupplierDecorator(supplier,
                 Arrays.asList(DocumentInputStream.class, DocumentRawData.class, DocumentText.class));
 
-        supplier = new SQLUriVerbalizingSupplierDecorator(supplier, new String[]{"label", "description"});
+        supplier = new UriVerbalizingSupplierDecoratorFacade(supplier,
+            new SQLUriVerbalizingSupplierDecorator(null, new String[]{"label", "description"}),
+            new SimpleUriVerbalizingSupplierDecorator(null)
+        );
 
         supplier = new TextCleaningSupplierDecorator(supplier);
 
