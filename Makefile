@@ -1,5 +1,7 @@
 include .env
 
+JAVA = java -Xmx8g
+
 HDT_FILES := $(addprefix lodcat.extractor/src/test/resources/, \
 simple.hdt \
 lang.hdt \
@@ -31,13 +33,13 @@ extract:
 	DB_HOST=$(DB_HOST) DB_USER=$(DB_USER) DB_PASSWORD=$(DB_PASSWORD) DB_DB=$(DB_DB) ./extract_wrapper
 
 generate-corpus: lodcat.model/target/lodcat.model.jar
-	DB_HOST=$(DB_HOST) DB_USER=$(DB_USER) DB_PASSWORD=$(DB_PASSWORD) DB_DB=$(DB_DB) java -Xmx8g -cp lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.InitialCorpusGenerator "$$DATA_DIR" corpus/corpus.xml
+	DB_HOST=$(DB_HOST) DB_USER=$(DB_USER) DB_PASSWORD=$(DB_PASSWORD) DB_DB=$(DB_DB) $(JAVA) -cp .:lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.InitialCorpusGenerator "$$DATA_DIR" corpus/corpus.xml
 
 generate-object:
-	java -Xmx8g -cp lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.CorpusObjectGenerator corpus/corpus.xml object/object.gz
+	$(JAVA) -cp lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.CorpusObjectGenerator corpus/corpus.xml object/object.gz
 
 generate-model:
-	java -Xmx8g -cp lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.ModelGenerator object/object.gz model/model.gz 5
+	$(JAVA) -cp lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.ModelGenerator object/object.gz model/model.gz 5
 
 generate-labels:
 	./topwords4labelling <model/top_words.csv >model/top_words.labelling
@@ -51,7 +53,7 @@ generate-labels:
 
 measure-quality: palmetto-0.1.0.jar
 	./topwords4palmetto <model/top_words.csv >model/top_words.palmetto
-	java -jar palmetto-0.1.0.jar $$HOME/.local/share/palmetto/indexes/wikipedia_bd C_P model/top_words.palmetto
+	$(JAVA) -jar palmetto-0.1.0.jar $$HOME/.local/share/palmetto/indexes/wikipedia_bd C_P model/top_words.palmetto
 
 %/target/%.jar:
 	mvn --projects $* package
