@@ -38,6 +38,9 @@ generate-corpus: lodcat.model/target/lodcat.model.jar
 generate-object:
 	$(JAVA) -cp lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.CorpusObjectGenerator corpus/corpus.xml object/object.gz
 
+generate-wikipedia-object: enwiki.xml.bz2
+	$(JAVA) -cp lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.CorpusObjectGenerator $< object/wikipedia.gz
+
 generate-model:
 	$(JAVA) -cp lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.ModelGenerator object/object.gz model/model.gz 5
 
@@ -63,3 +66,6 @@ palmetto-0.1.0.jar:
 
 %.hdt: %.ttl
 	rdf2hdt -rdftype turtle $< $@
+
+enwiki.xml.bz2:
+	wget -O $@ https://dumps.wikimedia.org/enwiki/20210101/enwiki-20210101-pages-articles-multistream.xml.bz2

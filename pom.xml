@@ -65,6 +65,11 @@
         <artifactId>jena-arq</artifactId>
         <version>${org.apache.jena.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>1.20</version>
+      </dependency>
       <!-- Topicmodeling -->
       <dependency>
         <groupId>org.dice-research</groupId>
@@ -79,6 +84,11 @@
       <dependency>
         <groupId>org.dice-research</groupId>
         <artifactId>topicmodeling.stanford-nlp</artifactId>
+        <version>${org.aksw.simba.topicmodeling.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.dice-research</groupId>
+        <artifactId>topicmodeling.wikipedia</artifactId>
         <version>${org.aksw.simba.topicmodeling.version}</version>
       </dependency>
       <!-- Squirrel API -->

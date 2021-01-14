@@ -1,12 +1,16 @@
 package org.dice_research.lodcat.model;
 
+import java.io.FileInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.stanford.nlp.util.PropertiesUtils;
 import org.aksw.simba.tapioca.data.SimpleTokenizedText;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.dice_research.topicmodeling.io.CorpusWriter;
 import org.dice_research.topicmodeling.io.gzip.GZipCorpusWriterDecorator;
 import org.dice_research.topicmodeling.io.java.CorpusObjectWriter;
@@ -35,6 +39,7 @@ import org.dice_research.topicmodeling.utils.doc.DocumentURI;
 import org.dice_research.topicmodeling.utils.doc.TermTokenizedText;
 import org.dice_research.topicmodeling.utils.vocabulary.SimpleVocabulary;
 import org.dice_research.topicmodeling.utils.vocabulary.Vocabulary;
+import org.dice_research.topicmodeling.wikipedia.WikipediaDumpReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,8 +76,22 @@ public class CorpusObjectGenerator {
 
     public void run(File corpusFile, File outputFile) {
         LOGGER.info("Creating pipeline...");
-        // Create XML reader
-        DocumentSupplier supplier = StreamBasedXmlDocumentSupplier.createReader(corpusFile, true);
+        DocumentSupplier supplier;
+        if (corpusFile.toString().contains("wiki")) {
+            // Create Wikipedia dump reader
+            LOGGER.info("Using Wikipedia dump reader");
+            try {
+                InputStream input = new BZip2CompressorInputStream(new FileInputStream(corpusFile), true);
+                supplier = WikipediaDumpReader.createReader(input, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                LOGGER.error("Could not create a reader: {}", corpusFile);
+                throw new RuntimeException(e);
+            }
+        } else {
+            // Create XML reader
+            LOGGER.info("Using XML document supplier");
+            supplier = StreamBasedXmlDocumentSupplier.createReader(corpusFile, true);
+        }
 //        StreamBasedXmlDocumentSupplier.registerParseableDocumentProperty(DatasetClassInfo.class);
 //        StreamBasedXmlDocumentSupplier.registerParseableDocumentProperty(DatasetSpecialClassesInfo.class);
 //        StreamBasedXmlDocumentSupplier.registerParseableDocumentProperty(DatasetPropertyInfo.class);

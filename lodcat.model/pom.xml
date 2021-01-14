@@ -33,6 +33,10 @@
       <groupId>org.apache.jena</groupId>
       <artifactId>jena-arq</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+    </dependency>
     <!-- Topicmodeling -->
     <dependency>
       <groupId>org.dice-research</groupId>
@@ -41,6 +45,10 @@
     <dependency>
       <groupId>org.dice-research</groupId>
       <artifactId>topicmodeling.io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.dice-research</groupId>
+      <artifactId>topicmodeling.wikipedia</artifactId>
     </dependency>
     <dependency>
       <groupId>edu.stanford.nlp</groupId>

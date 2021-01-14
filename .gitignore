@@ -2,6 +2,7 @@
 *.project
 *.settings
 *.classpath
+*.bz2
 *.jar
 *.pyc
 *.retry
