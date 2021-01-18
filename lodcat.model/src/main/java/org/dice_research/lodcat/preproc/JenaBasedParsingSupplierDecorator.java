@@ -56,9 +56,9 @@ import com.carrotsearch.hppc.ObjectLongOpenHashMap;
 /**
  * Parses the {@link DocumentText} as RDF VOID information (in turtle), filters
  * and counts the different URIs and returns them as {@link UriCounts} property.
- * 
+ *
  * @author Michael R&ouml;der (roeder@informatik.uni-leipzig.de)
- * 
+ *
  */
 public class JenaBasedParsingSupplierDecorator extends AbstractPropertyAppendingDocumentSupplierDecorator<UriCounts> {
 
