@@ -40,6 +40,7 @@ import org.dice_research.topicmodeling.utils.doc.TermTokenizedText;
 import org.dice_research.topicmodeling.utils.vocabulary.SimpleVocabulary;
 import org.dice_research.topicmodeling.utils.vocabulary.Vocabulary;
 import org.dice_research.topicmodeling.wikipedia.WikipediaDumpReader;
+import org.dice_research.topicmodeling.wikipedia.WikipediaMarkupDeletingDocumentSupplierDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +88,8 @@ public class CorpusObjectGenerator {
                 LOGGER.error("Could not create a reader: {}", corpusFile);
                 throw new RuntimeException(e);
             }
+
+            supplier = new WikipediaMarkupDeletingDocumentSupplierDecorator(supplier);
         } else {
             // Create XML reader
             LOGGER.info("Using XML document supplier");
