@@ -112,14 +112,6 @@ public class CorpusObjectGenerator {
                 StanfordPipelineWrapper.createStanfordPipelineWrapper(
                 PropertiesUtils.asProperties("annotators", "tokenize,ssplit,pos,lemma"), null));
 
-        // Filter standard stop words
-        supplier = new TermFilteringSupplierDecorator(supplier,
-                StandardEnglishPosTaggingTermFilter.getInstance());
-
-        // Filter custom stop words
-        supplier = new TermFilteringSupplierDecorator(supplier,
-                new StopwordlistBasedTermFilter(getClass().getClassLoader().getResourceAsStream("stopwords.txt")));
-
         // Filter empty documents
         supplier = new DocumentFilteringSupplierDecorator(supplier, new DocumentFilter() {
 
@@ -138,6 +130,14 @@ public class CorpusObjectGenerator {
                 }
             }
         });
+
+        // Filter standard stop words
+        supplier = new TermFilteringSupplierDecorator(supplier,
+                StandardEnglishPosTaggingTermFilter.getInstance());
+
+        // Filter custom stop words
+        supplier = new TermFilteringSupplierDecorator(supplier,
+                new StopwordlistBasedTermFilter(getClass().getClassLoader().getResourceAsStream("stopwords.txt")));
 
         Vocabulary vocabulary = new SimpleVocabulary();
         supplier = new WordIndexingSupplierDecorator(supplier, vocabulary);
