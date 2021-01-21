@@ -16,6 +16,7 @@ import org.dice_research.lodcat.preproc.SquirrelMetadataAddingSupplierDecorator;
 import org.dice_research.lodcat.preproc.TextCleaningSupplierDecorator;
 import org.dice_research.lodcat.preproc.UriFilteringSupplierDecorator;
 import org.dice_research.lodcat.preproc.UriVerbalizingSupplierDecoratorFacade;
+import org.dice_research.lodcat.uri.UriFileExtensionFilter;
 import org.dice_research.lodcat.uri.UriNamespaceFilter;
 import org.dice_research.topicmodeling.io.FolderReader;
 import org.dice_research.topicmodeling.io.factories.StreamOpeningFileBasedDocumentFactory;
@@ -46,6 +47,11 @@ public class InitialCorpusGenerator {
         OWL.getURI(),
         RDF.getURI(),
         RDFS.getURI(),
+    };
+
+    private static final String[] BLACKLISTED_EXTENSIONS = new String[] {
+        "css",
+        "js",
     };
 
     public static void main(String[] args) {
@@ -80,6 +86,9 @@ public class InitialCorpusGenerator {
 
         // Filter URIs based on their namespace
         supplier = new UriFilteringSupplierDecorator(supplier, new UriNamespaceFilter(BLACKLISTED_NAMESPACES, true));
+
+        // Filter URIs based on their file extension (if present)
+        supplier = new UriFilteringSupplierDecorator(supplier, new UriFileExtensionFilter(BLACKLISTED_EXTENSIONS, true));
 
         // Remove unnecessary properties
         supplier = new PropertyRemovingSupplierDecorator(supplier,
