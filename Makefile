@@ -63,6 +63,9 @@ generate-labels:
 
 measure-quality: palmetto-0.1.0.jar
 	./topwords4palmetto <model/top_words.csv >model/top_words.palmetto
+	[ -e $$HOME/.local/share/palmetto/indexes/wikipedia_bd ] \
+	|| (mkdir -p $$HOME/.local/share/palmetto/indexes \
+	&& (wget -q -O - "https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/Wikipedia_bd.zip" |busybox unzip - -d $$HOME/.local/share/palmetto/indexes))
 	$(JAVA) -jar palmetto-0.1.0.jar $$HOME/.local/share/palmetto/indexes/wikipedia_bd C_P model/top_words.palmetto
 
 %/target/%.jar:
