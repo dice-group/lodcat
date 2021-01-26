@@ -1,7 +1,5 @@
 include .env
 
-JAVA = java -Xmx8g
-
 HDT_FILES := $(addprefix lodcat.extractor/src/test/resources/, \
 simple.hdt \
 lang.hdt \
@@ -33,19 +31,25 @@ extract:
 	DB_HOST=$(DB_HOST) DB_USER=$(DB_USER) DB_PASSWORD=$(DB_PASSWORD) DB_DB=$(DB_DB) ./extract_wrapper
 
 generate-corpus: lodcat.model/target/lodcat.model.jar
-	DB_HOST=$(DB_HOST) DB_USER=$(DB_USER) DB_PASSWORD=$(DB_PASSWORD) DB_DB=$(DB_DB) $(JAVA) -cp .:lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.InitialCorpusGenerator "$$DATA_DIR" corpus/corpus.xml
+	DB_HOST=$(DB_HOST) DB_USER=$(DB_USER) DB_PASSWORD=$(DB_PASSWORD) DB_DB=$(DB_DB) $(CORPUS_GENERATOR) "$$DATA_DIR" corpus/corpus.xml
 
 generate-object:
-	$(JAVA) -cp lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.CorpusObjectGenerator corpus/corpus.xml object/object.gz
+	$(OBJECT_GENERATOR) corpus/corpus.xml object/object.gz
 
 generate-enwiki-object: enwiki.xml.bz2
-	$(JAVA) -cp .:lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.CorpusObjectGenerator $< object/enwiki.gz
+	$(OBJECT_GENERATOR) $< object/enwiki.gz
 
 generate-simplewiki-object: simplewiki.xml.bz2
-	$(JAVA) -cp .:lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.CorpusObjectGenerator $< object/simplewiki.gz
+	$(OBJECT_GENERATOR) $< object/simplewiki.gz
 
 generate-model:
-	$(JAVA) -cp lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.ModelGenerator object/object.gz model/model.gz 5
+	$(MODEL_GENERATOR) object/object.gz model/model.gz 5
+
+generate-enwiki-model:
+	$(MODEL_GENERATOR) object/enwiki.gz model/enwiki.gz 5
+
+generate-simplewiki-model:
+	$(MODEL_GENERATOR) object/simplewiki.gz model/simplewiki.gz 5
 
 generate-labels:
 	./topwords4labelling <model/top_words.csv >model/top_words.labelling
