@@ -1,4 +1,4 @@
-include .env
+include .makerc
 
 HDT_FILES := $(addprefix lodcat.extractor/src/test/resources/, \
 simple.hdt \
@@ -61,18 +61,20 @@ generate-labels:
 	docker cp netl:/usr/src/app/model_run/output_supervised labels/supervised
 	docker rm netl
 
-measure-quality: palmetto-0.1.0.jar
+measure-quality: $(PALMETTO_JAR) palmetto-indexes
 	./topwords4palmetto <model/top_words.csv >model/top_words.palmetto
-	[ -e $$HOME/.local/share/palmetto/indexes/wikipedia_bd ] \
-	|| (mkdir -p $$HOME/.local/share/palmetto/indexes \
-	&& (wget -q -O - "https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/Wikipedia_bd.zip" |busybox unzip - -d $$HOME/.local/share/palmetto/indexes))
-	$(JAVA) -jar palmetto-0.1.0.jar $$HOME/.local/share/palmetto/indexes/wikipedia_bd C_P model/top_words.palmetto
+	$(PALMETTO) $$HOME/.local/share/palmetto/indexes/wikipedia_bd C_P model/top_words.palmetto
 
 %/target/%.jar:
 	mvn --projects $* package
 
-palmetto-0.1.0.jar:
+$(PALMETTO_JAR):
 	wget -O $@ https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/palmetto-0.1.0-jar-with-dependencies.jar
+
+palmetto-indexes:
+	[ -e $$HOME/.local/share/palmetto/indexes/wikipedia_bd ] \
+	|| (mkdir -p $$HOME/.local/share/palmetto/indexes \
+	&& (wget -q -O - "https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/Wikipedia_bd.zip" |busybox unzip - -d $$HOME/.local/share/palmetto/indexes))
 
 %.hdt: %.ttl
 	rdf2hdt -rdftype turtle $< $@
