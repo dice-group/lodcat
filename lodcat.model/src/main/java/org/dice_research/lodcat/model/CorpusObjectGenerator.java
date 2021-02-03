@@ -142,6 +142,9 @@ public class CorpusObjectGenerator {
         supplier = new TermFilteringSupplierDecorator(supplier,
                 new StopwordlistBasedTermFilter(getClass().getClassLoader().getResourceAsStream("stopwords.txt")));
 
+        // Remove special tokens
+        supplier = new TermFilteringSupplierDecorator(supplier, term -> !(term.getPosTag().startsWith("-") && term.getPosTag().endsWith("-")));
+
         Vocabulary vocabulary = new SimpleVocabulary();
         supplier = new WordIndexingSupplierDecorator(supplier, vocabulary);
         supplier = new DocumentWordCountingSupplierDecorator(supplier);
