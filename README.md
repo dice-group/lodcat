@@ -14,3 +14,7 @@
 ## Measure quality of topics
 
 Run `make measure-quality`.
+
+## Analysis of how number of topics influences the topic quality
+
+`./numberOfTopics-experiment <object file> <output directory> <number of repeats for the same parameters>`
