@@ -24,8 +24,8 @@ def callback(ch, method, properties, body):
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(
     host='localhost',
-    heartbeat=600,
-    blocked_connection_timeout=300,
+    heartbeat=60000,
+    blocked_connection_timeout=30000,
 ))
 channel = connection.channel()
 channel.queue_declare(queue='file', durable=True)
