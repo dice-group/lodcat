@@ -6,6 +6,8 @@ lang.hdt \
 lang2.hdt \
 quotes.hdt \
 blanknode.hdt \
+) $(addprefix lodcat.model/src/test/resources/, \
+counts.hdt \
 )
 
 all: build test

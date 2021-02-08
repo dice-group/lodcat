@@ -44,7 +44,6 @@ import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Quad;
 import org.dice_research.lodcat.data.UriCounts;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.AbstractPropertyAppendingDocumentSupplierDecorator;
 import org.dice_research.topicmodeling.utils.doc.Document;
 import org.dice_research.topicmodeling.utils.doc.DocumentInputStream;
 import org.dice_research.topicmodeling.utils.doc.DocumentText;
@@ -60,7 +59,7 @@ import com.carrotsearch.hppc.ObjectLongOpenHashMap;
  * @author Michael R&ouml;der (roeder@informatik.uni-leipzig.de)
  *
  */
-public class JenaBasedParsingSupplierDecorator extends AbstractPropertyAppendingDocumentSupplierDecorator<UriCounts> {
+public class JenaBasedParsingSupplierDecorator extends AbstractParsingSupplierDecorator<UriCounts> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JenaBasedParsingSupplierDecorator.class);
 
@@ -93,7 +92,8 @@ public class JenaBasedParsingSupplierDecorator extends AbstractPropertyAppending
         return null;
     }
 
-    private UriCounts parseRDF(Document document, InputStream is) {
+    @Override
+    protected UriCounts parseRDF(Document document, InputStream is) {
 //        UriCounter counter = new UriCounter();
 //        RDFParser parser = RDFParser.create().base("").fromString(text).lang(Lang.TTL).build();
 //        try {
@@ -130,6 +130,7 @@ public class JenaBasedParsingSupplierDecorator extends AbstractPropertyAppending
 
         protected void countNode(Node n) {
             if (n.isURI()) {
+                LOGGER.trace("Incrementing counter for URI: {}", n);
                 uriCounts.putOrAdd(n.getURI(), 1, 1);
             }
         }

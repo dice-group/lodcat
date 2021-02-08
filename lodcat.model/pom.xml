@@ -37,6 +37,10 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.dice-research</groupId>
+      <artifactId>rdfdetector</artifactId>
+    </dependency>
     <!-- Topicmodeling -->
     <dependency>
       <groupId>org.dice-research</groupId>

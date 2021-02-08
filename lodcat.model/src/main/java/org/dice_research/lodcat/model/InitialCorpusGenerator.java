@@ -8,8 +8,8 @@ import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.dice_research.lodcat.data.UriCounts;
-import org.dice_research.lodcat.preproc.JenaBasedParsingSupplierDecorator;
 import org.dice_research.lodcat.preproc.NameFilteringSupplierDecorator;
+import org.dice_research.lodcat.preproc.RDFParsingSupplierDecorator;
 import org.dice_research.lodcat.preproc.SimpleUriVerbalizingSupplierDecorator;
 import org.dice_research.lodcat.preproc.SQLUriVerbalizingSupplierDecorator;
 import org.dice_research.lodcat.preproc.SquirrelMetadataAddingSupplierDecorator;
@@ -82,7 +82,7 @@ public class InitialCorpusGenerator {
         // StandardCharsets.UTF_8);
 
         // Parse the RDF and keep a map of URIs to their counts
-        supplier = new JenaBasedParsingSupplierDecorator(supplier);
+        supplier = new RDFParsingSupplierDecorator(supplier);
 
         // Filter URIs based on their namespace
         supplier = new UriFilteringSupplierDecorator(supplier, new UriNamespaceFilter(BLACKLISTED_NAMESPACES, true));
