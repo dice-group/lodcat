@@ -46,7 +46,7 @@ public class UriFileExtensionFilter implements UriFilter {
         }
 
         if (!blacklist) {
-            LOGGER.trace("URI filtered by not being on the whitelist: {}", uri);
+            LOGGER.trace("URI filtered by not being on the extension whitelist: {}", uri);
         }
         return blacklist;
     }

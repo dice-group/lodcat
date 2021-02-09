@@ -17,6 +17,7 @@ import org.dice_research.lodcat.preproc.TextCleaningSupplierDecorator;
 import org.dice_research.lodcat.preproc.UriFilteringSupplierDecorator;
 import org.dice_research.lodcat.preproc.UriVerbalizingSupplierDecoratorFacade;
 import org.dice_research.lodcat.uri.UriFileExtensionFilter;
+import org.dice_research.lodcat.uri.UriFileNameFilter;
 import org.dice_research.lodcat.uri.UriNamespaceFilter;
 import org.dice_research.topicmodeling.io.FolderReader;
 import org.dice_research.topicmodeling.io.factories.StreamOpeningFileBasedDocumentFactory;
@@ -47,6 +48,10 @@ public class InitialCorpusGenerator {
         OWL.getURI(),
         RDF.getURI(),
         RDFS.getURI(),
+    };
+
+    private static final String[] BLACKLISTED_FILENAMES = new String[] {
+        "favicon.ico",
     };
 
     private static final String[] BLACKLISTED_EXTENSIONS = new String[] {
@@ -86,6 +91,9 @@ public class InitialCorpusGenerator {
 
         // Filter URIs based on their namespace
         supplier = new UriFilteringSupplierDecorator(supplier, new UriNamespaceFilter(BLACKLISTED_NAMESPACES, true));
+
+        // Filter URIs based on their file name (if present)
+        supplier = new UriFilteringSupplierDecorator(supplier, new UriFileNameFilter(BLACKLISTED_FILENAMES, true));
 
         // Filter URIs based on their file extension (if present)
         supplier = new UriFilteringSupplierDecorator(supplier, new UriFileExtensionFilter(BLACKLISTED_EXTENSIONS, true));
