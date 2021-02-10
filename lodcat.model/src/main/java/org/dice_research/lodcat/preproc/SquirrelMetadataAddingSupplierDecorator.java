@@ -40,7 +40,9 @@ public class SquirrelMetadataAddingSupplierDecorator
     public static SquirrelMetadataAddingSupplierDecorator create(DocumentSupplier documentSource,
             File squirrelMetaData) {
         Map<String, String> fileToUriMapping = new HashMap<>();
+        LOGGER.trace("Finding and reading Squirrel metadata files...");
         readFileToUriMapping(squirrelMetaData, Collections.synchronizedMap(fileToUriMapping));
+        LOGGER.trace("Squirrel metadata mappings found: {}", fileToUriMapping.size());
         return new SquirrelMetadataAddingSupplierDecorator(documentSource, fileToUriMapping);
     }
 
@@ -52,9 +54,10 @@ public class SquirrelMetadataAddingSupplierDecorator
             if (squirrelMetaData.isFile()) {
                 if (squirrelMetaData.getName().contains("squirrel_metadata")) {
                     try {
+                        LOGGER.trace("Parsing Squirrel metadata file: {}...", squirrelMetaData);
                         RDFDataMgr.parse(new SquirrelFileUriMapper(fileToUriMapping),
                                 "file://" + squirrelMetaData.getAbsolutePath());
-                        LOGGER.info("Parsed metadata file: {}", squirrelMetaData);
+                        LOGGER.info("Parsed Squirrel metadata file: {}", squirrelMetaData);
                     } catch (Exception e) {
                         LOGGER.error("Exception while parsing metadata file: {}", squirrelMetaData, e);
                     }
