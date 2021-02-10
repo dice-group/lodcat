@@ -48,6 +48,7 @@ public class InitialCorpusGenerator {
         OWL.getURI(),
         RDF.getURI(),
         RDFS.getURI(),
+        "http://www.w3.org/1999/xhtml/vocab#",
     };
 
     private static final String[] BLACKLISTED_FILENAMES = new String[] {
