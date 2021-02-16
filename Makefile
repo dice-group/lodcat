@@ -63,9 +63,10 @@ generate-labels:
 	docker cp netl:/usr/src/app/model_run/output_supervised labels/supervised
 	docker rm netl
 
-measure-quality: $(PALMETTO_JAR) palmetto-indexes
-	./topwords4palmetto <model/top_words.csv >model/top_words.palmetto
-	$(PALMETTO) $$HOME/.local/share/palmetto/indexes/wikipedia_bd C_P model/top_words.palmetto
+measure-quality: palmetto
+	./lodcat-measure-quality C_P model
+
+palmetto: $(PALMETTO_JAR) palmetto-indexes
 
 %/target/%.jar:
 	mvn --projects $* package

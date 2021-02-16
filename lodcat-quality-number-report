@@ -1,0 +1,34 @@
+#!/bin/sh
+set -eu
+
+set -a; . ./.env; set +a
+
+OUTPUT_DIR=$1
+
+truncate -s 0 "$OUTPUT_DIR/micro-quality.csv"
+for NUMBER_DIR in "$OUTPUT_DIR"/*; do
+    if [ -d "$NUMBER_DIR" ]; then
+        truncate -s 0 "$NUMBER_DIR/micro-quality.csv"
+        for MODEL_DIR in "$NUMBER_DIR"/*; do
+            if [ -d "$MODEL_DIR" ]; then
+                cat "$MODEL_DIR/quality.csv" >>"$NUMBER_DIR/micro-quality.csv"
+            fi
+        done
+        echo $(basename "$NUMBER_DIR"), $(octave -f -q --eval "X = csvread('$NUMBER_DIR/micro-quality.csv'); disp(mean(X));"), $(octave -f -q --eval "X = csvread('$NUMBER_DIR/micro-quality.csv'); disp(std(X));") >>"$OUTPUT_DIR/micro-quality.csv"
+    fi
+done
+
+echo "
+set terminal png
+set output '$OUTPUT_DIR/micro-quality.png'
+set title 'Micro-average topic quality (LODCat)'
+set xlabel 'Number of topics'
+set ylabel 'Micro-average topic quality'
+set grid
+set key outside center bottom
+set logscale x
+set xrange [1:]
+set yrange [0:1]
+set style line 1 lc rgb '#0060ad' pt 7 ps 1.5 lt 1 lw 2
+plot '$OUTPUT_DIR/micro-quality.csv' using 1:2:3 title '$OUTPUT_DIR' ls 1 with errorbars
+" |gnuplot

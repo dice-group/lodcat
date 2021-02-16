@@ -1,0 +1,12 @@
+#!/bin/bash
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+MODEL_DIR="$2"
+
+make -C "$LODCAT_DIR" palmetto
+FILES=( "$LODCAT_DIR"/palmetto-*.jar )
+PALMETTO_JAR="${FILES[0]}"
+"$LODCAT_DIR/topwords4palmetto" <"$MODEL_DIR/top_words.csv" >"$MODEL_DIR/top_words.palmetto"
+java -jar "$PALMETTO_JAR" "$HOME/.local/share/palmetto/indexes/wikipedia_bd" "$1" "$MODEL_DIR/top_words.palmetto" >"$MODEL_DIR/palmetto.out"
+awk 'NR > 1 { print $2 }' "$MODEL_DIR/palmetto.out"
