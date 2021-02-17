@@ -72,7 +72,7 @@ palmetto: $(PALMETTO_JAR) palmetto-indexes
 	mvn --projects $* package
 
 $(PALMETTO_JAR):
-	wget -O $@ https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/palmetto-0.1.0-jar-with-dependencies.jar
+	wget -q -O $@ https://hobbitdata.informatik.uni-leipzig.de/homes/mroeder/palmetto/palmetto-0.1.0-jar-with-dependencies.jar
 
 palmetto-indexes:
 	[ -e $$HOME/.local/share/palmetto/indexes/wikipedia_bd ] \
