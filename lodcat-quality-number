@@ -4,17 +4,14 @@ set -eu
 LODCAT_DIR="$(dirname $(realpath $0))"
 set -a; . "$LODCAT_DIR"/.env; set +a
 
-OBJECT_FILE=$1
-OUTPUT_DIR=$2
-REPEATS=$3
+OBJECT_FILE="$1"
+OUTPUT_DIR="$2"
+REPEATS="$3"
+JOBS="$4"
 
 make palmetto-0.1.0.jar palmetto-indexes
 
-for NUMBER_OF_TOPICS in 10 20 30 40 50 60 70 80 90 100 120 140 160 180 200 250 300 400 500 750 1000; do
-    for i in $(seq 1 $REPEATS); do
-        MODEL_DIR="$OUTPUT_DIR/$NUMBER_OF_TOPICS/$(date +%s)_$i"
-        mkdir -p "$MODEL_DIR"
-        $MODEL_GENERATOR "$OBJECT_FILE" "$MODEL_DIR/model.gz" $NUMBER_OF_TOPICS
-        "$LODCAT_DIR"/lodcat-measure-quality C_P "$MODEL_DIR"
-    done
-done
+parallel --jobs "$JOBS" --tag --verbose \
+./lodcat-quality-number-instance "$OBJECT_FILE" "$OUTPUT_DIR" \
+::: 10 20 30 40 50 60 70 80 90 100 120 140 160 180 200 250 300 400 500 750 1000 \
+::: $(seq 1 $REPEATS)

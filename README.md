@@ -18,7 +18,7 @@ Run `make measure-quality`.
 ## Analysis of how number of topics influences the topic quality
 
 ```
-./lodcat-quality-number <object file> <output directory> <number of repeats for the same parameters>
+./lodcat-quality-number <object file> <output directory> <number of repeats for the same parameters> <number of jobs to run in parallel>
 ./lodcat-quality-number-report <output directory>
 ```
 CSV and corresponding plot will be generated in the specified output directory.

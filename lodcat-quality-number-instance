@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+set -a; . "$LODCAT_DIR"/.env; set +a
+
+OBJECT_FILE=$1
+OUTPUT_DIR=$2
+NUMBER_OF_TOPICS=$3
+i=$4
+
+mkdir -p "$OUTPUT_DIR/$NUMBER_OF_TOPICS"
+MODEL_DIR="$(mktemp -p "$OUTPUT_DIR/$NUMBER_OF_TOPICS" -d "${i}_$(date +%s)_XXXXXXXXXX")"
+$MODEL_GENERATOR "$OBJECT_FILE" "$MODEL_DIR/model.gz" $NUMBER_OF_TOPICS
+"$LODCAT_DIR"/lodcat-measure-quality C_P "$MODEL_DIR"
