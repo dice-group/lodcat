@@ -63,6 +63,11 @@
       <groupId>org.dice-research</groupId>
       <artifactId>topicmodeling.stanford-nlp</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
     <!-- Squirrel API -->
     <dependency>
       <groupId>org.dice-research</groupId>
