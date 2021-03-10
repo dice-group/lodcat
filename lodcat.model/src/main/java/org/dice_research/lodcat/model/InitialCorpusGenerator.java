@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
@@ -61,11 +62,21 @@ public class InitialCorpusGenerator {
     };
 
     public static void main(String[] args) {
-        new InitialCorpusGenerator().run(new File(args[0]), new File(args[1]));
+        if (args.length < 2) {
+            LOGGER.info("Usage: InitialCorpusGenerator <input folder> <output corpus file> [<file filter prefix>]");
+            return;
+        }
+        File inputFolder = new File(args[0]);
+        File corpusFile = new File(args[1]);
+        String filenamePrefix = args.length >= 3 ? args[2] : "";
+        new InitialCorpusGenerator().run(inputFolder, corpusFile, filenamePrefix);
     }
 
-    protected void run(File inputFolder, File corpusFile) {
-        FolderReader reader = new FolderReader(new StreamOpeningFileBasedDocumentFactory(), inputFolder);
+    protected void run(File inputFolder, File corpusFile, String filenamePrefix) {
+        FolderReader reader = new FolderReader(
+            new StreamOpeningFileBasedDocumentFactory(),
+            inputFolder,
+            FileFilterUtils.prefixFileFilter(filenamePrefix));
         reader.setUseFolderNameAsCategory(true);
         DocumentSupplier supplier = reader;
 
