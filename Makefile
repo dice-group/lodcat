@@ -10,11 +10,9 @@ blanknode.hdt \
 counts.hdt \
 )
 
-all: build test
-
 build:
-	mvn --batch-mode package
-	docker build --tag=lodcat_extractor lodcat.extractor
+	mvn --batch-mode --quiet -DskipTests package
+	#docker build --tag=lodcat_extractor lodcat.extractor
 
 test: $(HDT_FILES)
 	mvn --quiet test
