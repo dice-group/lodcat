@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+set -a; . "$LODCAT_DIR"/.env; set +a
+
+INPUT_DIR=$1
+OUTPUT_FILE=$2
+PREFIX=${3:-}
+
+$CORPUS_GENERATOR "$INPUT_DIR" "$OUTPUT_FILE" "$PREFIX"

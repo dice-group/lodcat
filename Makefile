@@ -31,7 +31,7 @@ extract:
 	DB_HOST=$(DB_HOST) DB_USER=$(DB_USER) DB_PASSWORD=$(DB_PASSWORD) DB_DB=$(DB_DB) ./extract_wrapper
 
 generate-corpus: lodcat.model/target/lodcat.model.jar
-	DB_HOST=$(DB_HOST) DB_USER=$(DB_USER) DB_PASSWORD=$(DB_PASSWORD) DB_DB=$(DB_DB) $(CORPUS_GENERATOR) "$$DATA_DIR" corpus/corpus.xml
+	./lodcat-generate-corpus "$$DATA_DIR" corpus/corpus.xml
 
 generate-object:
 	$(OBJECT_GENERATOR) corpus/corpus.xml object/object.gz

@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+set -a; . "$LODCAT_DIR"/.env; set +a
+
+INPUT_DIR=$1
+OUTPUT_DIR=$2
+JOBS=$3
+
+parallel --jobs "$JOBS" --tag --verbose \
+"$LODCAT_DIR"/lodcat-generate-corpus "$INPUT_DIR" "$OUTPUT_DIR"/"{1}" "{1}" \
+::: 0 1 2 3 4 5 6 7 8 9 a b c d e f
