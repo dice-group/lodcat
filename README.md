@@ -9,11 +9,20 @@
 * Generate the corpus file: `./lodcat-generate-corpus your_data_dir corpus/corpus.xml`. File `corpus/corpus.xml` will be generated.
 * Generate the object file: `make generate-object`. File `object/object.gz` will be generated.
 * Generate the model file: `make generate-model`. File `model/model.gz` will be generated.
-* Generate the labels: `make generate-labels`. Files with labels will be generated in `labels/`.
 
 ## Measure quality of topics
 
 Run `make measure-quality`.
+
+## Generating labels
+
+Labels are generated with [NETL](https://github.com/dice-group/NETL-Automatic-Topic-Labelling-).
+
+```
+./lodcat-generate-labels <model directory>
+```
+
+Output: `labels-supervised.csv`, `labels-unsupervised.csv` with label candidates for each topic.
 
 ## Analysis of how number of topics influences the topic quality
 

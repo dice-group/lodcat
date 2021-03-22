@@ -52,14 +52,7 @@ generate-simplewiki-model:
 	$(MODEL_GENERATOR) object/simplewiki.gz model/simplewiki.gz 5
 
 generate-labels:
-	./topwords4labelling <model/top_words.csv >model/top_words.labelling
-	docker run \
-	-v `pwd`/model/top_words.labelling:/data/topics.csv \
-	--name netl dicegroup/netl
-	mkdir -p labels
-	docker cp netl:/usr/src/app/model_run/output_unsupervised labels/unsupervised
-	docker cp netl:/usr/src/app/model_run/output_supervised labels/supervised
-	docker rm netl
+	./lodcat-generate-labels model
 
 measure-quality: palmetto
 	./lodcat-measure-quality C_P model

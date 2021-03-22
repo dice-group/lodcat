@@ -1,0 +1,14 @@
+#!/bin/bash
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+MODEL_DIR="$1"
+
+"$LODCAT_DIR"/topwords4labelling <"$MODEL_DIR"/top_words.csv >"$MODEL_DIR"/top_words.labelling
+docker run \
+-v "$(realpath "$MODEL_DIR")"/top_words.labelling:/data/topics.csv \
+--name netl dicegroup/netl
+mkdir -p labels
+docker cp netl:/usr/src/app/model_run/output_unsupervised "$MODEL_DIR"/labels-unsupervised.csv
+docker cp netl:/usr/src/app/model_run/output_supervised "$MODEL_DIR"/labels-supervised.csv
+docker rm netl
