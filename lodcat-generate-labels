@@ -1,6 +1,12 @@
 #!/bin/bash
 set -eu
 
+function cleanup {
+    docker rm netl
+}
+
+trap cleanup EXIT
+
 LODCAT_DIR="$(dirname $(realpath $0))"
 MODEL_DIR="$1"
 
@@ -11,4 +17,3 @@ docker run \
 mkdir -p labels
 docker cp netl:/usr/src/app/model_run/output_unsupervised "$MODEL_DIR"/labels-unsupervised.csv
 docker cp netl:/usr/src/app/model_run/output_supervised "$MODEL_DIR"/labels-supervised.csv
-docker rm netl
