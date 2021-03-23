@@ -11,9 +11,10 @@ while (<>) {
     push @lines, [split /;/];
 }
 
+my $term = 0;
 print "topic_id";
-for (my $i = 0; $i < @{$lines[0]}; $i++) {
-    print ",term$i";
+for (@topics) {
+    /^topic/ and print ",term", $term++;
 }
 print "\n";
 
