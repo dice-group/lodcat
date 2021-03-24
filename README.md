@@ -31,3 +31,9 @@ Output: `labels-supervised.csv`, `labels-unsupervised.csv` with label candidates
 ./lodcat-quality-number-report <output directory>
 ```
 CSV and corresponding plot will be generated in the specified output directory.
+
+# Classifying documents
+
+```
+./lodcat-classify <model directory> <object file with documents to classify> <output classification file>
+```
