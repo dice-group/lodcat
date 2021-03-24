@@ -7,6 +7,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.stream.Stream;
+
+import com.google.common.collect.Streams;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.dice_research.topicmodeling.algorithms.ClassificationModel;
 import org.dice_research.topicmodeling.algorithms.ModelingAlgorithm;
 import org.dice_research.topicmodeling.io.CorpusReader;
@@ -16,6 +21,7 @@ import org.dice_research.topicmodeling.io.java.CorpusObjectReader;
 import org.dice_research.topicmodeling.io.ProbTopicModelingAlgorithmStateReader;
 import org.dice_research.topicmodeling.utils.corpus.Corpus;
 import org.dice_research.topicmodeling.utils.doc.Document;
+import org.dice_research.topicmodeling.utils.doc.DocumentClassificationResult;
 import org.dice_research.topicmodeling.utils.doc.DocumentName;
 import org.dice_research.topicmodeling.utils.doc.DocumentURI;
 import org.dice_research.topicmodeling.utils.doc.ProbabilisticClassificationResult;
@@ -28,6 +34,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ModelClassifier {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelClassifier.class);
+
+    private ClassificationModel model;
 
     public static void main(String[] args) {
         if (args.length != 3) {
@@ -60,27 +68,49 @@ public class ModelClassifier {
         return reader.getCorpus();
     }
 
+    private Stream<Document> processCorpus(File corpusFile) {
+        LOGGER.trace("Reading corpus: {}", corpusFile);
+        Corpus corpus = readCorpus(corpusFile);
+        return Streams.stream(corpus).map(this::processDocument);
+    }
+
+    private Document processDocument(Document document) {
+        String documentName = document.getProperty(DocumentName.class).getStringValue();
+        LOGGER.trace("Document name: {}", documentName);
+
+        String documentURI = document.getProperty(DocumentURI.class).getStringValue();
+        LOGGER.trace("Document URI: {}", documentURI);
+
+        LOGGER.info("CLASS: {}", model.getClassificationForDocument(document).getClass());
+        ProbabilisticClassificationResult result = (ProbabilisticClassificationResult) model.getClassificationForDocument(document);
+        LOGGER.trace("Classification result: {}", result);
+        document.addProperty(result);
+
+        return document;
+    }
+
     public void run(File modelFile, File corpusFile, File outputFile) {
         LOGGER.trace("Reading model...");
-        ClassificationModel model = readClassificationModel(modelFile);
+        model = readClassificationModel(modelFile);
 
-        LOGGER.trace("Reading corpus...");
-        Corpus corpus = readCorpus(corpusFile);
+        Stream<File> corpusFiles;
+        if (corpusFile.isDirectory()) {
+            corpusFiles = Streams.stream(FileUtils.iterateFiles(corpusFile, FileFilterUtils.suffixFileFilter(".xml"), null));
+        } else {
+            corpusFiles = Stream.of(corpusFile);
+        }
+
+        Stream<Document> documents = corpusFiles.flatMap(this::processCorpus);
 
         try (
             OutputStream fos = new FileOutputStream(outputFile);
             Writer osw = new OutputStreamWriter(fos);
             Writer writer = new BufferedWriter(osw)
         ) {
-            for (Document document : corpus) {
+            documents.map(document -> {
                 String documentName = document.getProperty(DocumentName.class).getStringValue();
-                LOGGER.trace("Document name: {}", documentName);
-
                 String documentURI = document.getProperty(DocumentURI.class).getStringValue();
-                LOGGER.trace("Document URI: {}", documentURI);
-
-                ProbabilisticClassificationResult result = (ProbabilisticClassificationResult) model.getClassificationForDocument(document);
-                LOGGER.trace("Classification result: {}", result);
+                ProbabilisticClassificationResult result = document.getProperty(ProbabilisticClassificationResult.class);
 
                 StringBuilder s = new StringBuilder();
                 s.append("\"");
@@ -94,8 +124,14 @@ public class ModelClassifier {
                     s.append(topicProbability);
                 }
                 s.append("\n");
-                writer.write(s.toString());
-            }
+                return s.toString();
+            }).forEach(s -> {
+                try {
+                    writer.write(s);
+                } catch (IOException e) {
+                    LOGGER.error("Exception while writing", e);
+                }
+            });
         } catch (IOException e) {
             LOGGER.error("Exception while writing", e);
         }
