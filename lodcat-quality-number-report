@@ -8,13 +8,19 @@ OUTPUT_DIR=$1
 truncate -s 0 "$OUTPUT_DIR/micro-quality.csv"
 for NUMBER_DIR in "$OUTPUT_DIR"/*; do
     if [ -d "$NUMBER_DIR" ]; then
-        truncate -s 0 "$NUMBER_DIR/micro-quality.csv"
+        rm -f "$NUMBER_DIR/micro-quality.csv"
         for MODEL_DIR in "$NUMBER_DIR"/*; do
             if [ -d "$MODEL_DIR" ]; then
-                cat "$MODEL_DIR/quality.csv" >>"$NUMBER_DIR/micro-quality.csv"
+                if [ -f "$MODEL_DIR/quality.csv" ]; then
+                    cat "$MODEL_DIR/quality.csv" >>"$NUMBER_DIR/micro-quality.csv"
+                else
+                    echo "Missing file: $MODEL_DIR/quality.csv"
+                fi
             fi
         done
-        echo $(basename "$NUMBER_DIR"), $(octave -f -q --eval "X = csvread('$NUMBER_DIR/micro-quality.csv'); disp(mean(X));"), $(octave -f -q --eval "X = csvread('$NUMBER_DIR/micro-quality.csv'); disp(std(X));") >>"$OUTPUT_DIR/micro-quality.csv"
+        if [ -f "$NUMBER_DIR/micro-quality.csv" ]; then
+            echo $(basename "$NUMBER_DIR"), $(octave -f -q --eval "X = csvread('$NUMBER_DIR/micro-quality.csv'); disp(mean(X));"), $(octave -f -q --eval "X = csvread('$NUMBER_DIR/micro-quality.csv'); disp(std(X));") >>"$OUTPUT_DIR/micro-quality.csv"
+        fi
     fi
 done
 
