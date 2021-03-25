@@ -37,3 +37,8 @@ CSV and corresponding plot will be generated in the specified output directory.
 ```
 ./lodcat-classify <model directory> <object file with documents to classify> <output classification file>
 ```
+
+# Generating reports
+
+```
+./lodcat-model-report <model directory>

@@ -1,0 +1,23 @@
+#!/bin/bash
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+MODEL_DIR="$1"
+
+HTML="$MODEL_DIR/model.html"
+
+truncate -s 0 "$HTML"
+
+echo "
+<meta name="generator" content="LODCat" />
+<link rel='stylesheet' href='lodcat-report.css'/>
+<body>
+" >>"$HTML"
+
+"$LODCAT_DIR"/topics2html "$MODEL_DIR"/quality.csv "$MODEL_DIR"/labels-unsupervised.csv >>"$HTML"
+
+echo "<hr/>" >>"$HTML"
+
+"$LODCAT_DIR"/topwords2html <"$MODEL_DIR"/top_words.csv >>"$HTML"
+
+echo "<hr/><a href='https://github.com/dice-group/lodcat'>LODCat</a>" >>"$HTML"

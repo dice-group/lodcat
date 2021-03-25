@@ -1,0 +1,32 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+my @quality;
+open my $QF, '<', $ARGV[0] or die "$!";
+while (<$QF>) {
+    chomp;
+    push @quality, $_;
+}
+
+my @labels;
+open my $LF, '<', $ARGV[1] or die "$!";
+while (<$LF>) {
+    chomp;
+    s/^\d+,//;
+    push @labels, [split/,/];
+}
+
+print qq{<table class="lodcat-topics">\n};
+print "<caption>Topics</caption>\n";
+print "<thead><th>ID</th><th>Quality</th><th>Label candidates</th></thead>";
+print "<tbody>\n";
+
+for (my $i = 0; $i < @quality; $i++) {
+    print "<tr><td>$i</td><td>$quality[$i]</td>";
+    print map { "<td>$_</td>" } @{$labels[$i]};
+    print "</tr>\n";
+}
+
+print "</tbody>\n";
+print "</table>\n";

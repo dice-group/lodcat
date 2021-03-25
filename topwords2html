@@ -1,0 +1,26 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+my @topics = split /;/, <>;
+my @lines;
+while (<>) {
+    chomp;
+    push @lines, [split /;/];
+}
+
+my $topicID = 0;
+for (@topics) {
+    /^topic/ and do {
+        my @words = map { shift @$_ } @lines;
+        print qq{<table class="lodcat-topic-topwords" data-topic="$topicID">\n};
+        print "<caption>Top words of topic $topicID</caption>\n";
+        print "<tbody>\n";
+        my @probabilities = map { shift @$_ } @lines;
+        for (my $i = 0; $i < @words; $i++) {
+            print "<tr><td>$words[$i]</td><td>$probabilities[$i]</td></tr>\n";
+        }
+        print "</tbody></table>\n";
+        $topicID++;
+    }
+}
