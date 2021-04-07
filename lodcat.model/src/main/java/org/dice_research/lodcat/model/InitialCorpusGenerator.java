@@ -73,6 +73,10 @@ public class InitialCorpusGenerator {
     }
 
     protected void run(File inputFolder, File corpusFile, String filenamePrefix) {
+        LOGGER.trace("Input directory: {}", inputFolder);
+        LOGGER.trace("Output file: {}", corpusFile);
+        LOGGER.trace("Prefix file filter: {}", filenamePrefix);
+
         FolderReader reader = new FolderReader(
             new StreamOpeningFileBasedDocumentFactory(),
             inputFolder,

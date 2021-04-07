@@ -19,8 +19,10 @@ public class SQLUriVerbalizingSupplierDecorator extends AbstractUriVerbalizingSu
         this.types = types;
 
         try {
+            LOGGER.trace("Connecting to SQL database: {}...", System.getenv("DB_HOST"));
             Connection con = DriverManager.getConnection("jdbc:postgresql://" + System.getenv("DB_HOST") + "/" + System.getenv("DB_DB"), System.getenv("DB_USER"), System.getenv("DB_PASSWORD"));
             select = con.prepareStatement("SELECT value FROM labels WHERE uri=? AND type=?::labelType");
+            LOGGER.trace("Connected to SQL database");
         } catch (SQLException e) {
             LOGGER.error("Error while getting connection");
             throw new RuntimeException(e);

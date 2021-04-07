@@ -12,7 +12,13 @@
 
 ## Measure quality of topics
 
-Run `make measure-quality`.
+Topic quality is measured with [Palmetto](https://github.com/dice-group/Palmetto).
+
+```
+./lodcat-measure-quality C_P <model directory>
+```
+
+Output: `quality.csv` with quality value for each topic.
 
 ## Generating labels
 
@@ -30,6 +36,9 @@ Output: `labels-supervised.csv`, `labels-unsupervised.csv` with label candidates
 ./lodcat-quality-number <object file> <output directory> <number of repeats for the same parameters> <number of jobs to run in parallel>
 ./lodcat-quality-number-report <output directory>
 ```
+
+Output: `micro-quality.csv`, `micro-quality.png`.
+
 CSV and corresponding plot will be generated in the specified output directory.
 
 # Classifying documents
@@ -42,3 +51,4 @@ CSV and corresponding plot will be generated in the specified output directory.
 
 ```
 ./lodcat-model-report <model directory>
+```

@@ -89,6 +89,7 @@ public class CorpusObjectGenerator {
                 throw new RuntimeException(e);
             }
 
+            // Remove Wikipedia markup
             supplier = new WikipediaMarkupDeletingDocumentSupplierDecorator(supplier);
         } else {
             // Create XML reader
@@ -111,6 +112,7 @@ public class CorpusObjectGenerator {
             }
         });
 
+        // Tokenize the text
         supplier = new NerPropagatingSupplierDecorator(supplier,
                 StanfordPipelineWrapper.createStanfordPipelineWrapper(
                 PropertiesUtils.asProperties("annotators", "tokenize,ssplit,pos,lemma"), null));
@@ -142,7 +144,7 @@ public class CorpusObjectGenerator {
         supplier = new TermFilteringSupplierDecorator(supplier,
                 new StopwordlistBasedTermFilter(getClass().getClassLoader().getResourceAsStream("stopwords.txt")));
 
-        // Remove special tokens
+        // Remove special non-word tokens
         supplier = new TermFilteringSupplierDecorator(supplier, term -> !(term.getPosTag().startsWith("-") && term.getPosTag().endsWith("-")));
 
         Vocabulary vocabulary = new SimpleVocabulary();
