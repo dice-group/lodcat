@@ -15,3 +15,4 @@ target/
 /object
 /postgres/data
 /log4j.properties
+/*.xsl

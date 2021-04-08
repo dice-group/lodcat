@@ -1,0 +1,11 @@
+#!/bin/bash
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+set -a; . "$LODCAT_DIR"/.env; set +a
+
+MODEL_DIR="$1"
+CLASSIFICATION_FILE="$2"
+OUTPUT_DIR="$3"
+
+$CLASSIFICATION_REPORTER "$MODEL_DIR" "$CLASSIFICATION_FILE" "$OUTPUT_DIR"

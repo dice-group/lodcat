@@ -51,4 +51,5 @@ CSV and corresponding plot will be generated in the specified output directory.
 
 ```
 ./lodcat-model-report <model directory>
+./lodcat-classification-report <model directory> <classification file> <output directory>
 ```
