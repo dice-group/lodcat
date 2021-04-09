@@ -14,3 +14,5 @@ create unique index unique_labels on labels using btree (
   digest(uri, 'sha512'::text),
   type,
   digest(value, 'sha512'::text));
+
+create index index_labels on labels using btree (uri);
