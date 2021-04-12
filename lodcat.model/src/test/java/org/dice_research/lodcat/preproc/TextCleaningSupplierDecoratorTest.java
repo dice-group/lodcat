@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.Test;
+import static org.dice_research.lodcat.preproc.TextCleaningSupplierDecorator.normalizeNFD;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
@@ -45,9 +46,14 @@ public class TextCleaningSupplierDecoratorTest {
     }
 
     @Test
-    public void test() {
+    public void testChunkedNormalization() {
+        assertEquals("Text normalized with small chunks", normalizeNFD(input), normalizeNFD(input, 1));
+    }
+
+    @Test
+    public void testCleanedText() {
         doc.addProperty(new DocumentText(input));
         instance.apply(doc);
-        assertEquals(expected, doc.getProperty(DocumentText.class).getText());
+        assertEquals("Cleaned text", expected, doc.getProperty(DocumentText.class).getText());
     }
 }

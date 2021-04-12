@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 public class TextCleaningSupplierDecorator extends AbstractPropertyEditingDocumentSupplierDecorator<DocumentText> {
     private static final Logger LOGGER = LoggerFactory.getLogger(TextCleaningSupplierDecorator.class);
 
+    private static int NORMALIZER_CHUNK_SIZE = 10_000_000;
+
     private static final Pattern NOTHING = Pattern.compile(
             "</?\\w[^>]*>" // HTML tag-lookalikes
             + "|" + "\\W+(?=\\s|$)" // non-word symbols before the whitespace
@@ -37,10 +39,33 @@ public class TextCleaningSupplierDecorator extends AbstractPropertyEditingDocume
     @Override
     protected void editDocumentProperty(DocumentText docText) {
         String text = docText.getText();
-        text = Normalizer.normalize(text, Normalizer.Form.NFD);
+        text = normalizeNFD(text);
         text = NOTHING.matcher(text).replaceAll("");
         text = WORD_SEPARATOR.matcher(text).replaceAll(" ");
         text = text.toLowerCase();
         docText.setText(text);
+    }
+
+    /*
+     * Process the string with java.text.Normalizer in chunks.
+     * This is not perfect but should be good enough (for NFD form).
+     */
+    protected static String normalizeNFD(String text, int chunkSize) {
+        int length = text.length();
+
+        if (length < chunkSize) {
+            return Normalizer.normalize(text, Normalizer.Form.NFD);
+        }
+
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < length; i += chunkSize) {
+            result.append(
+                    Normalizer.normalize(text.substring(i, Math.min(i + chunkSize, length)), Normalizer.Form.NFD));
+        }
+        return result.toString();
+    }
+
+    protected static String normalizeNFD(String text) {
+        return normalizeNFD(text, NORMALIZER_CHUNK_SIZE);
     }
 }
