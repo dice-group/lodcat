@@ -5,7 +5,7 @@ LODCAT_DIR="$(dirname $(realpath $0))"
 set -a; . "$LODCAT_DIR"/.env; set +a
 
 MODEL_DIR="$1"
-OBJECT_FILE="$2"
+CORPUS_XML_FILE_OR_DIR="$2"
 OUTPUT_FILE="$3"
 
-$CLASSIFIER "$MODEL_DIR/model.gz" "$OBJECT_FILE" "$OUTPUT_FILE"
+$CLASSIFIER "$MODEL_DIR/model.gz" "$CORPUS_XML_FILE_OR_DIR" "$OUTPUT_FILE"
