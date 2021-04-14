@@ -4,7 +4,6 @@ DB_PASSWORD=postgres
 DB_DB=postgres
 JAVA=java -Xmx8g
 CORPUS_GENERATOR=java -Xmx8g -cp .:lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.InitialCorpusGenerator
-OBJECT_GENERATOR=java -Xmx8g -cp .:lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.CorpusObjectGenerator
 MODEL_GENERATOR=java -Xmx8g -cp .:lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.ModelGenerator
 PALMETTO_JAR=palmetto-0.1.0.jar
 PALMETTO=java -Xmx8g -jar $PALMETTO_JAR

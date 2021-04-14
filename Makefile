@@ -34,7 +34,7 @@ generate-corpus: lodcat.model/target/lodcat.model.jar
 	./lodcat-generate-corpus "$$DATA_DIR" corpus/corpus.xml
 
 generate-object:
-	$(OBJECT_GENERATOR) corpus/corpus.xml object/object.gz
+	./lodcat-generate-object corpus/corpus.xml object/object.gz
 
 generate-enwiki-object: enwiki.xml.bz2
 	$(OBJECT_GENERATOR) $< object/enwiki.gz

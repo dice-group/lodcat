@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+set -a; . "$LODCAT_DIR"/.env; set +a
+
+INPUT_FILE=$1
+OUTPUT_FILE=$2
+
+$OBJECT_GENERATOR "$INPUT_FILE" "$OUTPUT_FILE"
