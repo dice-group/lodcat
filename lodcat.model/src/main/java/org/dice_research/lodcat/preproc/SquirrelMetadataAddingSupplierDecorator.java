@@ -82,7 +82,7 @@ public class SquirrelMetadataAddingSupplierDecorator
             String fileName = "file:///var/squirrel/data/" + name.get();
             if (fileToUriMapping.containsKey(fileName)) {
                 return new DocumentURI(fileToUriMapping.get(fileName));
-            } else {
+            } else if (fileToUriMapping.size() != 0) {
                 LOGGER.error(
                         "Got a document file name \"{}\" that couldn't be found in the metadata map. Returning null.",
                         fileName);
