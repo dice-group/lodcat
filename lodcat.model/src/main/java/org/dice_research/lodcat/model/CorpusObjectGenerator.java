@@ -1,33 +1,24 @@
 package org.dice_research.lodcat.model;
 
-import java.io.FileInputStream;
 import java.io.File;
-import java.io.InputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.stanford.nlp.util.PropertiesUtils;
-import org.aksw.simba.tapioca.data.SimpleTokenizedText;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.dice_research.lodcat.preproc.TextProcessingSupplierDecorator;
 import org.dice_research.topicmodeling.io.CorpusWriter;
 import org.dice_research.topicmodeling.io.gzip.GZipCorpusWriterDecorator;
 import org.dice_research.topicmodeling.io.java.CorpusObjectWriter;
 import org.dice_research.topicmodeling.io.xml.stream.StreamBasedXmlDocumentSupplier;
-import org.dice_research.topicmodeling.lang.postagging.StandardEnglishPosTaggingTermFilter;
-import org.dice_research.topicmodeling.lang.postagging.StanfordPipelineWrapper;
-import org.dice_research.topicmodeling.lang.postagging.StopwordlistBasedTermFilter;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.AbstractPropertyAppendingDocumentSupplierDecorator;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentFilteringSupplierDecorator;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentWordCountingSupplierDecorator;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.filter.DocumentFilter;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.ner.NerPropagatingSupplierDecorator;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.PropertyRemovingSupplierDecorator;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.TermFilteringSupplierDecorator;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.WordIndexingSupplierDecorator;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
 import org.dice_research.topicmodeling.preprocessing.ListCorpusCreator;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentFilteringSupplierDecorator;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.PropertyRemovingSupplierDecorator;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.filter.DocumentFilter;
 import org.dice_research.topicmodeling.utils.corpus.Corpus;
 import org.dice_research.topicmodeling.utils.corpus.DocumentListCorpus;
 import org.dice_research.topicmodeling.utils.corpus.properties.CorpusVocabulary;
@@ -112,44 +103,8 @@ public class CorpusObjectGenerator {
             }
         });
 
-        // Tokenize the text
-        supplier = new NerPropagatingSupplierDecorator(supplier,
-                StanfordPipelineWrapper.createStanfordPipelineWrapper(
-                PropertiesUtils.asProperties("annotators", "tokenize,ssplit,pos,lemma"), null));
-
-        // Filter empty documents
-        supplier = new DocumentFilteringSupplierDecorator(supplier, new DocumentFilter() {
-
-            public boolean isDocumentGood(Document document) {
-                TermTokenizedText text = document.getProperty(TermTokenizedText.class);
-                DocumentName name = document.getProperty(DocumentName.class);
-                DocumentURI uri = document.getProperty(DocumentURI.class);
-                if ((text != null) && (text.getTermTokenizedText().size() > 0)) {
-                    LOGGER.info("{} ({}) is accepted as part of the corpus", name != null ? name.get() : "null",
-                            uri != null ? uri.get() : "null");
-                    return true;
-                } else {
-                    LOGGER.info("{} ({}) is sorted out and won't be part of the corpus",
-                            name != null ? name.get() : "null", uri != null ? uri.get() : "null");
-                    return false;
-                }
-            }
-        });
-
-        // Filter standard stop words
-        supplier = new TermFilteringSupplierDecorator(supplier,
-                StandardEnglishPosTaggingTermFilter.getInstance());
-
-        // Filter custom stop words
-        supplier = new TermFilteringSupplierDecorator(supplier,
-                new StopwordlistBasedTermFilter(getClass().getClassLoader().getResourceAsStream("stopwords.txt")));
-
-        // Remove special non-word tokens
-        supplier = new TermFilteringSupplierDecorator(supplier, term -> !(term.getPosTag().startsWith("-") && term.getPosTag().endsWith("-")));
-
         Vocabulary vocabulary = new SimpleVocabulary();
-        supplier = new WordIndexingSupplierDecorator(supplier, vocabulary);
-        supplier = new DocumentWordCountingSupplierDecorator(supplier);
+        supplier = new TextProcessingSupplierDecorator(supplier, vocabulary);
 
         // Since this property is not serializeable we have to remove it
         List<Class<? extends DocumentProperty>> propertiesToRemove = new ArrayList<Class<? extends DocumentProperty>>();

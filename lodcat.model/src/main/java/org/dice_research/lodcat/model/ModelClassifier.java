@@ -7,35 +7,43 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 import com.google.common.collect.Streams;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.dice_research.lodcat.preproc.TextProcessingSupplierDecorator;
 import org.dice_research.topicmodeling.algorithms.ClassificationModel;
 import org.dice_research.topicmodeling.algorithms.ModelingAlgorithm;
-import org.dice_research.topicmodeling.io.CorpusReader;
-import org.dice_research.topicmodeling.io.gzip.GZipCorpusReaderDecorator;
-import org.dice_research.topicmodeling.io.gzip.GZipProbTopicModelingAlgorithmStateReader;
-import org.dice_research.topicmodeling.io.java.CorpusObjectReader;
+import org.dice_research.topicmodeling.algorithms.ProbTopicModelingAlgorithmStateSupplier;
 import org.dice_research.topicmodeling.io.ProbTopicModelingAlgorithmStateReader;
+import org.dice_research.topicmodeling.io.gzip.GZipProbTopicModelingAlgorithmStateReader;
+import org.dice_research.topicmodeling.io.xml.stream.StreamBasedXmlDocumentSupplier;
+import org.dice_research.topicmodeling.preprocessing.ListCorpusCreator;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
 import org.dice_research.topicmodeling.utils.corpus.Corpus;
+import org.dice_research.topicmodeling.utils.corpus.DocumentListCorpus;
 import org.dice_research.topicmodeling.utils.doc.Document;
-import org.dice_research.topicmodeling.utils.doc.DocumentClassificationResult;
 import org.dice_research.topicmodeling.utils.doc.DocumentName;
 import org.dice_research.topicmodeling.utils.doc.DocumentURI;
 import org.dice_research.topicmodeling.utils.doc.ProbabilisticClassificationResult;
+import org.dice_research.topicmodeling.utils.vocabulary.Vocabulary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Classify documents from a given corpus object file
- * using a previously generated model.
+ * Classify documents from a given corpus XML file (or a directory with such files)
+ * using a previously generated gzipped model.
  */
 public class ModelClassifier {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModelClassifier.class);
 
     private ClassificationModel model;
+
+    private Vocabulary vocabulary;
 
     public static void main(String[] args) {
         if (args.length != 3) {
@@ -56,32 +64,29 @@ public class ModelClassifier {
         classifier.run(modelFile, corpusFile, outputFile);
     }
 
-    private ClassificationModel readClassificationModel(File modelFile) {
+    private void readClassificationModel(File modelFile) {
         ProbTopicModelingAlgorithmStateReader reader = new GZipProbTopicModelingAlgorithmStateReader();
-        ModelingAlgorithm algorithm = (ModelingAlgorithm) reader.readProbTopicModelState(modelFile);
-        return (ClassificationModel) algorithm.getModel();
-    }
-
-    private Corpus readCorpus(File corpusFile) {
-        CorpusReader reader = new GZipCorpusReaderDecorator(new CorpusObjectReader());
-        reader.readCorpus(corpusFile);
-        return reader.getCorpus();
+        ProbTopicModelingAlgorithmStateSupplier algorithmStateSupplier = reader.readProbTopicModelState(modelFile);
+        vocabulary = algorithmStateSupplier.getVocabulary();
+        model = (ClassificationModel) (((ModelingAlgorithm) algorithmStateSupplier).getModel());
     }
 
     private Stream<Document> processCorpus(File corpusFile) {
-        LOGGER.trace("Reading corpus: {}", corpusFile);
-        Corpus corpus = readCorpus(corpusFile);
-        return Streams.stream(corpus).map(this::processDocument);
+        LOGGER.info("Corpus: {}", corpusFile);
+        DocumentSupplier supplier = StreamBasedXmlDocumentSupplier.createReader(corpusFile, false);
+
+        supplier = new TextProcessingSupplierDecorator(supplier, vocabulary);
+
+        return DocumentSupplier.convertToStream(supplier);
     }
 
     private Document processDocument(Document document) {
-        String documentName = document.getProperty(DocumentName.class).getStringValue();
-        LOGGER.trace("Document name: {}", documentName);
+        DocumentName documentName = document.getProperty(DocumentName.class);
+        LOGGER.trace("{}", documentName);
 
-        String documentURI = document.getProperty(DocumentURI.class).getStringValue();
-        LOGGER.trace("Document URI: {}", documentURI);
+        DocumentURI documentURI = document.getProperty(DocumentURI.class);
+        LOGGER.trace("{}", documentURI);
 
-        LOGGER.info("CLASS: {}", model.getClassificationForDocument(document).getClass());
         ProbabilisticClassificationResult result = (ProbabilisticClassificationResult) model.getClassificationForDocument(document);
         LOGGER.trace("Classification result: {}", result);
         document.addProperty(result);
@@ -90,8 +95,8 @@ public class ModelClassifier {
     }
 
     public void run(File modelFile, File corpusFile, File outputFile) {
-        LOGGER.trace("Reading model...");
-        model = readClassificationModel(modelFile);
+        LOGGER.info("Reading model: {}", modelFile);
+        readClassificationModel(modelFile);
 
         Stream<File> corpusFiles;
         if (corpusFile.isDirectory()) {
@@ -102,21 +107,22 @@ public class ModelClassifier {
 
         Stream<Document> documents = corpusFiles.flatMap(this::processCorpus);
 
+        LOGGER.info("Processing documents...");
         try (
             OutputStream fos = new FileOutputStream(outputFile);
             Writer osw = new OutputStreamWriter(fos);
             Writer writer = new BufferedWriter(osw)
         ) {
-            documents.map(document -> {
-                String documentName = document.getProperty(DocumentName.class).getStringValue();
-                String documentURI = document.getProperty(DocumentURI.class).getStringValue();
+            documents.map(this::processDocument).map(document -> {
+                DocumentName documentName = document.getProperty(DocumentName.class);
+                DocumentURI documentURI = document.getProperty(DocumentURI.class);
                 ProbabilisticClassificationResult result = document.getProperty(ProbabilisticClassificationResult.class);
 
                 StringBuilder s = new StringBuilder();
                 s.append("\"");
-                s.append(documentName);
+                s.append(documentName != null ? documentName.getStringValue() : "");
                 s.append("\",\"");
-                s.append(documentURI);
+                s.append(documentURI != null ? documentURI.getStringValue() : "");
                 s.append("\",");
                 s.append(result.getClassId());
                 for (double topicProbability : result.getTopicProbabilities()) {
@@ -135,5 +141,7 @@ public class ModelClassifier {
         } catch (IOException e) {
             LOGGER.error("Exception while writing", e);
         }
+
+        LOGGER.info("Done");
     }
 }
