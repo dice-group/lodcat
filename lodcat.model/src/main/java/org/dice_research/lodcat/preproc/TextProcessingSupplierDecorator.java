@@ -27,9 +27,12 @@ import edu.stanford.nlp.util.PropertiesUtils;
 public class TextProcessingSupplierDecorator implements DocumentSupplier {
     private static final Logger LOGGER = LoggerFactory.getLogger(TextProcessingSupplierDecorator.class);
 
+    private DocumentSupplier documentSource;
     private DocumentSupplier supplier;
 
     public TextProcessingSupplierDecorator(DocumentSupplier documentSource, Vocabulary vocabulary) {
+        this.documentSource = documentSource;
+
         // Tokenize the text
         supplier = new NerPropagatingSupplierDecorator(documentSource,
                 StanfordPipelineWrapper.createStanfordPipelineWrapper(
@@ -76,6 +79,6 @@ public class TextProcessingSupplierDecorator implements DocumentSupplier {
 
     @Override
     public void setDocumentStartId(int documentStartId) {
-        throw new UnsupportedOperationException();
+        documentSource.setDocumentStartId(documentStartId);
     }
 }
