@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 
 import com.google.common.collect.Streams;
@@ -22,10 +20,9 @@ import org.dice_research.topicmodeling.algorithms.ProbTopicModelingAlgorithmStat
 import org.dice_research.topicmodeling.io.ProbTopicModelingAlgorithmStateReader;
 import org.dice_research.topicmodeling.io.gzip.GZipProbTopicModelingAlgorithmStateReader;
 import org.dice_research.topicmodeling.io.xml.stream.StreamBasedXmlDocumentSupplier;
-import org.dice_research.topicmodeling.preprocessing.ListCorpusCreator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
-import org.dice_research.topicmodeling.utils.corpus.Corpus;
-import org.dice_research.topicmodeling.utils.corpus.DocumentListCorpus;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplierAsIterator;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentFilteringSupplierDecorator;
 import org.dice_research.topicmodeling.utils.doc.Document;
 import org.dice_research.topicmodeling.utils.doc.DocumentName;
 import org.dice_research.topicmodeling.utils.doc.DocumentURI;
@@ -71,41 +68,32 @@ public class ModelClassifier {
         model = (ClassificationModel) (((ModelingAlgorithm) algorithmStateSupplier).getModel());
     }
 
-    private Stream<Document> processCorpus(File corpusFile) {
+    private DocumentSupplier readCorpus(File corpusFile) {
         LOGGER.info("Corpus: {}", corpusFile);
         DocumentSupplier supplier = StreamBasedXmlDocumentSupplier.createReader(corpusFile, false);
 
+        supplier = new DocumentFilteringSupplierDecorator(supplier, document -> {
+                DocumentName documentName = document.getProperty(DocumentName.class);
+                DocumentURI documentURI = document.getProperty(DocumentURI.class);
+                LOGGER.trace("Processing: {} ({})...", documentName, documentURI);
+                return true;
+        });
+
         supplier = new TextProcessingSupplierDecorator(supplier, vocabulary);
 
-        return DocumentSupplier.convertToStream(supplier);
-    }
-
-    private Document processDocument(Document document) {
-        DocumentName documentName = document.getProperty(DocumentName.class);
-        LOGGER.trace("{}", documentName);
-
-        DocumentURI documentURI = document.getProperty(DocumentURI.class);
-        LOGGER.trace("{}", documentURI);
-
-        ProbabilisticClassificationResult result = (ProbabilisticClassificationResult) model.getClassificationForDocument(document);
-        LOGGER.trace("Classification result: {}", result);
-        document.addProperty(result);
-
-        return document;
+        return supplier;
     }
 
     public void run(File modelFile, File corpusFile, File outputFile) {
         LOGGER.info("Reading model: {}", modelFile);
         readClassificationModel(modelFile);
 
-        Stream<File> corpusFiles;
+        Stream<File> corpora;
         if (corpusFile.isDirectory()) {
-            corpusFiles = Streams.stream(FileUtils.iterateFiles(corpusFile, FileFilterUtils.suffixFileFilter(".xml"), null));
+            corpora = Streams.stream(FileUtils.iterateFiles(corpusFile, FileFilterUtils.suffixFileFilter(".xml"), null)).parallel();
         } else {
-            corpusFiles = Stream.of(corpusFile);
+            corpora = Stream.of(corpusFile);
         }
-
-        Stream<Document> documents = corpusFiles.flatMap(this::processCorpus);
 
         LOGGER.info("Processing documents...");
         try (
@@ -113,30 +101,38 @@ public class ModelClassifier {
             Writer osw = new OutputStreamWriter(fos);
             Writer writer = new BufferedWriter(osw)
         ) {
-            documents.map(this::processDocument).map(document -> {
-                DocumentName documentName = document.getProperty(DocumentName.class);
-                DocumentURI documentURI = document.getProperty(DocumentURI.class);
-                ProbabilisticClassificationResult result = document.getProperty(ProbabilisticClassificationResult.class);
+            corpora.map(this::readCorpus).map(DocumentSupplierAsIterator::new).forEach(documents -> {
+                    while (documents.hasNext()) {
+                        Document document = documents.next();
 
-                StringBuilder s = new StringBuilder();
-                s.append("\"");
-                s.append(documentName != null ? documentName.getStringValue() : "");
-                s.append("\",\"");
-                s.append(documentURI != null ? documentURI.getStringValue() : "");
-                s.append("\",");
-                s.append(result.getClassId());
-                for (double topicProbability : result.getTopicProbabilities()) {
-                    s.append(",");
-                    s.append(topicProbability);
-                }
-                s.append("\n");
-                return s.toString();
-            }).forEach(s -> {
-                try {
-                    writer.write(s);
-                } catch (IOException e) {
-                    LOGGER.error("Exception while writing", e);
-                }
+                        DocumentName documentName = document.getProperty(DocumentName.class);
+                        DocumentURI documentURI = document.getProperty(DocumentURI.class);
+                        ProbabilisticClassificationResult result = (ProbabilisticClassificationResult) model
+                            .getClassificationForDocument(document);
+
+                        StringBuilder s = new StringBuilder();
+                        s.append("\"");
+                        s.append(documentName != null ? documentName.getStringValue() : "");
+                        s.append("\",\"");
+                        s.append(documentURI != null ? documentURI.getStringValue() : "");
+                        s.append("\",");
+                        s.append(result.getClassId());
+                        for (double topicProbability : result.getTopicProbabilities()) {
+                            s.append(",");
+                            s.append(topicProbability);
+                        }
+                        s.append("\n");
+
+                        LOGGER.trace("Processed: {} ({})", documentName, documentURI);
+
+                        try {
+                            synchronized (this) {
+                                writer.write(s.toString());
+                            }
+                        } catch (IOException e) {
+                            LOGGER.error("Exception while writing: {} ({})", documentName, documentURI, e);
+                        }
+                    }
             });
         } catch (IOException e) {
             LOGGER.error("Exception while writing", e);
