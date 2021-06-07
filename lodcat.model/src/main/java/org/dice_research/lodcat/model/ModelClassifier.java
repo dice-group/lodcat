@@ -7,9 +7,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Iterator;
 import java.util.stream.Stream;
-
-import com.google.common.collect.Streams;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -90,7 +89,8 @@ public class ModelClassifier {
 
         Stream<File> corpora;
         if (corpusFile.isDirectory()) {
-            corpora = Streams.stream(FileUtils.iterateFiles(corpusFile, FileFilterUtils.suffixFileFilter(".xml"), null)).parallel();
+            Iterator<File> files = FileUtils.iterateFiles(corpusFile, FileFilterUtils.suffixFileFilter(".xml"), null);
+            corpora = Stream.generate(() -> files.hasNext() ? files.next() : null).takeWhile(file -> file != null).parallel();
         } else {
             corpora = Stream.of(corpusFile);
         }
