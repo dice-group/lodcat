@@ -7,7 +7,6 @@ import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplie
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentFilteringSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentWordCountingSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.TermFilteringSupplierDecorator;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.WordIndexingSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.filter.DocumentFilter;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.ner.NerPropagatingSupplierDecorator;
 import org.dice_research.topicmodeling.utils.doc.Document;
