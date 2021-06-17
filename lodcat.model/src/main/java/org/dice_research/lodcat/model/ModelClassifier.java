@@ -78,7 +78,7 @@ public class ModelClassifier {
                 return true;
         });
 
-        supplier = new TextProcessingSupplierDecorator(supplier, vocabulary);
+        supplier = new TextProcessingSupplierDecorator(supplier, vocabulary, false);
 
         return supplier;
     }

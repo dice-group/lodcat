@@ -30,6 +30,10 @@ public class TextProcessingSupplierDecorator implements DocumentSupplier {
     private DocumentSupplier supplier;
 
     public TextProcessingSupplierDecorator(DocumentSupplier documentSource, Vocabulary vocabulary) {
+        this(documentSource, vocabulary, true);
+    }
+
+    public TextProcessingSupplierDecorator(DocumentSupplier documentSource, Vocabulary vocabulary, boolean addNewWordsToVocabulary) {
         this.documentSource = documentSource;
 
         // Tokenize the text
@@ -67,7 +71,12 @@ public class TextProcessingSupplierDecorator implements DocumentSupplier {
         // Remove special non-word tokens
         supplier = new TermFilteringSupplierDecorator(supplier, term -> !(term.getPosTag().startsWith("-") && term.getPosTag().endsWith("-")));
 
-        supplier = new WordIndexingSupplierDecorator(supplier, vocabulary);
+        if (addNewWordsToVocabulary) {
+            supplier = new VocabularyAddingWordIndexingSupplierDecorator(supplier, vocabulary);
+        } else {
+            supplier = new VocabularyFilteringWordIndexingSupplierDecorator(supplier, vocabulary);
+        }
+
         supplier = new DocumentWordCountingSupplierDecorator(supplier);
     }
 
