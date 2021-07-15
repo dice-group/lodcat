@@ -1,0 +1,17 @@
+#!/bin/bash
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+set -a; . "$LODCAT_DIR"/.env; set +a
+
+CSV_FILE="$1"
+
+awk '{ S[$2]++ } END { for (a in S) { printf "%d\t%d\n", a, S[a] } }' $1 |sort -nk 1 >$1.points
+
+gnuplot -c uri-counts-points.gnuplot "$1.points" "$1.points.png"
+
+#echo "1 2-10 11-100 101-1000 1001-10000 10001-100000 >100000" >"$1.hist"
+
+perl -ane 'use POSIX "ceil"; @a = qw(1 2-10 11-100 101-1000 1001-10000 10001-100000 >100000); $s[$F[0] < 2 ? 0 : $F[0] > 100000 ? 6 : ceil(log($F[0])/log(10))] += $F[1]; END { for ($i = 0; $i < @a; $i++) { print "$i \"$a[$i]\" $s[$i]\n" } }' <"$1.points" >"$1.hist"
+
+gnuplot -c uri-counts-hist.gnuplot "$1.hist" "$1.hist.png"

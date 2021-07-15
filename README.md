@@ -53,3 +53,12 @@ CSV and corresponding plot will be generated in the specified output directory.
 ./lodcat-model-report <model directory>
 ./lodcat-classification-report <model directory> <classification file> <output directory>
 ```
+
+#  Finding occurrence of namespaces in documents
+
+```
+./lodcat-uri-counts corpus/corpus.xml occurrence_dir
+./lodcat-uir-counts-report occurrence_dir/documents-per-namespace
+```
+
+CSVs and plots will be generated in the specified `occurrence_dir`.

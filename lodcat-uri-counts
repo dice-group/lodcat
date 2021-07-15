@@ -1,0 +1,10 @@
+#!/bin/bash
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+set -a; . "$LODCAT_DIR"/.env; set +a
+
+CORPUS_XML_FILE_OR_DIR="$1"
+OUTPUT_DIR="$2"
+
+$MODEL_JAR org.dice_research.lodcat.model.UriCountAggregator "$CORPUS_XML_FILE_OR_DIR" "$OUTPUT_DIR"
