@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+import fileinput
+import requests
+
+batch_size = 50
+url = 'https://en.wikipedia.org/w/api.php'
+
+titles = []
+for line in fileinput.input():
+    titles.append(line.rstrip())
+
+batches = [titles[i*batch_size: (i+1)*batch_size] for i in range((len(titles) + batch_size - 1) // batch_size)]
+
+for batch in batches:
+    query = requests.get(url, params={'format': 'json', 'action': 'query', 'redirects': '', 'titles': '|'.join(batch)}).json()['query']
+    for title in batch:
+        for item in query['normalized']:
+            if item['from'] == title:
+                title = item['to']
+                break
+        for item in query['redirects']:
+            if item['from'] == title:
+                title = item['to']
+        print(title)

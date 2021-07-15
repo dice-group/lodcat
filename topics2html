@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
+use IPC::Open2;
 
 my @quality;
 open my $QF, '<', $ARGV[0] or die "$!";
@@ -15,6 +16,24 @@ while (<$LF>) {
     chomp;
     s/^\d+,//;
     push @labels, [split/,/];
+}
+
+my $cin;
+my $cout;
+open2($cout, $cin, './normalize-wikipedia-titles');
+print $cin join "\n", map { @$_ } @labels;
+close $cin;
+my $i = 0;
+my $j = 0;
+while (<$cout>) {
+    chomp;
+    $labels[$i][$j] = $_;
+    $j++;
+    if ($j >= @{$labels[$i]}) {
+        $j = 0;
+        $i++;
+        last if $i >= @labels;
+    }
 }
 
 open my $topwordsFile, '<', $ARGV[2] or die "$!";
