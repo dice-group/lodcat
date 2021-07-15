@@ -17,14 +17,34 @@ while (<$LF>) {
     push @labels, [split/,/];
 }
 
+open my $topwordsFile, '<', $ARGV[2] or die "$!";
+my @topics = split /;/, <$topwordsFile>;
+my @lines;
+while (<$topwordsFile>) {
+    chomp;
+    push @lines, [split /;/];
+}
+
+my @words;
+my @probabilities;
+my $topicID = 0;
+for (@topics) {
+    /^topic/ and do {
+        push @words, [map { shift @$_ } @lines];
+        push @probabilities, [map { shift @$_ } @lines];
+        $topicID++;
+    }
+}
+
 print qq{<table class="lodcat-topics">\n};
 print "<caption>Topics</caption>\n";
-print "<thead><th>ID</th><th>Quality</th><th>Label candidates</th></thead>";
+print "<thead><th>ID</th><th>Quality</th><th colspan=3>Label candidates</th><th colspan=10>Top words</th></thead>";
 print "<tbody>\n";
 
 for (my $i = 0; $i < @quality; $i++) {
     print "<tr><td>$i</td><td>$quality[$i]</td>";
     print map { "<td>$_</td>" } @{$labels[$i]};
+    print map { "<td>$_</td>" } @{$words[$i]} ;
     print "</tr>\n";
 }
 

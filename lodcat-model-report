@@ -15,7 +15,7 @@ echo "<!DOCTYPE html>
 <body>
 " >>"$HTML"
 
-"$LODCAT_DIR"/topics2html "$MODEL_DIR"/quality.csv "$MODEL_DIR"/labels-unsupervised.csv >>"$HTML"
+"$LODCAT_DIR"/topics2html "$MODEL_DIR"/quality.csv "$MODEL_DIR"/labels-unsupervised.csv "$MODEL_DIR"/top_words.csv >>"$HTML"
 
 echo "<hr/>" >>"$HTML"
 
