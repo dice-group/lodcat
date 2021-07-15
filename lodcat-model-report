@@ -8,7 +8,8 @@ HTML="$MODEL_DIR/model.html"
 
 truncate -s 0 "$HTML"
 
-echo "
+echo "<!DOCTYPE html>
+<meta charset="utf-8"/>
 <meta name="generator" content="LODCat" />
 <link rel='stylesheet' href='lodcat-report.css'/>
 <body>
