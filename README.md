@@ -10,6 +10,12 @@
 * Generate the object file: `make generate-object`. File `object/object.gz` will be generated.
 * Generate the model file: `make generate-model`. File `model/model.gz` will be generated.
 
+## Split XML corpus to multiple files
+
+```
+./lodcat-part-corpus <input XML file> <output directory> <documents per file> <number of parallel jobs>
+```
+
 ## Measure quality of topics
 
 Topic quality is measured with [Palmetto](https://github.com/dice-group/Palmetto).
