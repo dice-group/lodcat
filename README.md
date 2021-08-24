@@ -10,10 +10,10 @@
 * Generate the object file: `make generate-object`. File `object/object.gz` will be generated.
 * Generate the model file: `make generate-model`. File `model/model.gz` will be generated.
 
-## Split XML corpus to multiple files
+## Split each XML corpus file in a directory to multiple files
 
 ```
-./lodcat-part-corpus <input XML file> <output directory> <documents per file> <number of parallel jobs>
+./lodcat-part-corpus <input directory> <output directory> <documents per file> <number of parallel jobs>
 ```
 
 ## Measure quality of topics
