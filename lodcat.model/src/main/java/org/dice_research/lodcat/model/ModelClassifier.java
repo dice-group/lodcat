@@ -55,6 +55,9 @@ public class ModelClassifier {
             throw new IllegalArgumentException("The given corpus file does not exist.");
         }
         File outputFile = new File(args[2]);
+        if ((!outputFile.getParentFile().exists()) && (!outputFile.getParentFile().mkdirs())) {
+            throw new IllegalArgumentException("Couldn't create output directory.");
+        }
 
         ModelClassifier classifier = new ModelClassifier();
         classifier.run(modelFile, corpusFile, outputFile);

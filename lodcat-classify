@@ -5,7 +5,10 @@ LODCAT_DIR="$(dirname $(realpath $0))"
 set -a; . "$LODCAT_DIR"/.env; set +a
 
 MODEL_DIR="$1"
-CORPUS_XML_FILE_OR_DIR="$2"
-OUTPUT_FILE="$3"
+INPUT_DIR="$2"
+OUTPUT_DIR="$3"
+JOBS="$4"
 
-$CLASSIFIER "$MODEL_DIR/model.gz" "$CORPUS_XML_FILE_OR_DIR" "$OUTPUT_FILE"
+find "$INPUT_DIR" -type f -name '*.xml' -print0 \
+|parallel -0 --jobs "$JOBS" --tag --verbose --results "$OUTPUT_DIR/results" \
+"$CLASSIFIER" "$MODEL_DIR/model.gz" "{}" "$OUTPUT_DIR/classification/{#}.csv"

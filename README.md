@@ -50,7 +50,7 @@ CSV and corresponding plot will be generated in the specified output directory.
 # Classifying documents
 
 ```
-./lodcat-classify <model directory> <object file with documents to classify> <output classification file>
+./lodcat-classify <model directory> <directory with XML files with with documents to classify> <output directory> <number of jobs to run in parallel>
 ```
 
 # Generating reports
