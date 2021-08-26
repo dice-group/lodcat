@@ -8,9 +8,10 @@ import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.Docum
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentWordCountingSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.TermFilteringSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.filter.DocumentFilter;
-import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.ner.NerPropagatingSupplierDecorator;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.PosTaggingSupplierDecorator;
 import org.dice_research.topicmodeling.utils.doc.Document;
 import org.dice_research.topicmodeling.utils.doc.DocumentName;
+import org.dice_research.topicmodeling.utils.doc.DocumentText;
 import org.dice_research.topicmodeling.utils.doc.DocumentURI;
 import org.dice_research.topicmodeling.utils.doc.TermTokenizedText;
 import org.dice_research.topicmodeling.utils.vocabulary.Vocabulary;
@@ -35,11 +36,25 @@ public class TextProcessingSupplierDecorator implements DocumentSupplier {
 
     public TextProcessingSupplierDecorator(DocumentSupplier documentSource, Vocabulary vocabulary, boolean addNewWordsToVocabulary) {
         this.documentSource = documentSource;
+        supplier = documentSource;
+
+        // Filter documents without text property (due to source files failing to parse when the corpus was built)
+        supplier = new DocumentFilteringSupplierDecorator(supplier, new DocumentFilter() {
+            public boolean isDocumentGood(Document document) {
+                return document.getProperty(DocumentText.class) != null;
+            }
+        });
 
         // Tokenize the text
-        supplier = new NerPropagatingSupplierDecorator(documentSource,
-                StanfordPipelineWrapper.createStanfordPipelineWrapper(
-                PropertiesUtils.asProperties("annotators", "tokenize,ssplit,pos,lemma"), null));
+        supplier = new PosTaggingSupplierDecorator(
+                supplier,
+                new ChunkingPosTaggerDecorator(
+                    StanfordPipelineWrapper.createStanfordPipelineWrapper(
+                        PropertiesUtils.asProperties("annotators", "tokenize,ssplit,pos,lemma"),
+                        null
+		    )
+		)
+	);
 
         // Filter empty documents
         supplier = new DocumentFilteringSupplierDecorator(supplier, new DocumentFilter() {
