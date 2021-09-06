@@ -25,13 +25,14 @@ import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.Docum
 import org.dice_research.topicmodeling.utils.doc.Document;
 import org.dice_research.topicmodeling.utils.doc.DocumentName;
 import org.dice_research.topicmodeling.utils.doc.DocumentURI;
+import org.dice_research.topicmodeling.utils.doc.DocumentWordCounts;
 import org.dice_research.topicmodeling.utils.doc.ProbabilisticClassificationResult;
 import org.dice_research.topicmodeling.utils.vocabulary.Vocabulary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Classify documents from a given corpus XML file (or a directory with such files)
+ * Classify documents from a given word count XML file (or a directory with such files)
  * using a previously generated gzipped model.
  */
 public class ModelClassifier {
@@ -72,7 +73,10 @@ public class ModelClassifier {
 
     private DocumentSupplier readCorpus(File corpusFile) {
         LOGGER.info("Corpus: {}", corpusFile);
-        DocumentSupplier supplier = StreamBasedXmlDocumentSupplier.createReader(corpusFile, false);
+
+        StreamBasedXmlDocumentSupplier xmlSupplier = StreamBasedXmlDocumentSupplier.createReader(corpusFile, false);
+        xmlSupplier.registerParseableDocumentProperty(DocumentWordCounts.class);
+        DocumentSupplier supplier = xmlSupplier;
 
         supplier = new DocumentFilteringSupplierDecorator(supplier, document -> {
                 DocumentName documentName = document.getProperty(DocumentName.class);
@@ -81,7 +85,7 @@ public class ModelClassifier {
                 return true;
         });
 
-        supplier = new TextProcessingSupplierDecorator(supplier, vocabulary, false);
+        //supplier = new TextProcessingSupplierDecorator(supplier, vocabulary, false);
 
         return supplier;
     }
@@ -110,8 +114,8 @@ public class ModelClassifier {
 
                         DocumentName documentName = document.getProperty(DocumentName.class);
                         DocumentURI documentURI = document.getProperty(DocumentURI.class);
-                        ProbabilisticClassificationResult result = (ProbabilisticClassificationResult) model
-                            .getClassificationForDocument(document);
+                        ProbabilisticClassificationResult result;
+                        result = (ProbabilisticClassificationResult) model.getClassificationForDocument(document);
 
                         StringBuilder s = new StringBuilder();
                         s.append("\"");

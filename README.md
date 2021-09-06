@@ -49,8 +49,14 @@ CSV and corresponding plot will be generated in the specified output directory.
 
 # Classifying documents
 
+First, build word count data from corpus files:
 ```
-./lodcat-classify <model directory> <directory with XML files with with documents to classify> <output directory> <number of jobs to run in parallel>
+./lodcat-count-words <model directory> <directory with XML corpus files> <output directory> <number of jobs to run in parallel>
+```
+
+Then, run the classifier:
+```
+./lodcat-classify <model directory> <directory with word count files from the previous step> <output directory> <number of jobs to run in parallel>
 ```
 
 # Generating reports

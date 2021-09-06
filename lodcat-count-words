@@ -1,0 +1,14 @@
+#!/bin/bash
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+set -a; . "$LODCAT_DIR"/.env; set +a
+
+MODEL_DIR="$1"
+INPUT_DIR="$2"
+OUTPUT_DIR="$3"
+JOBS="$4"
+
+find "$INPUT_DIR" -type f -name '*.xml' -print0 \
+|parallel -0 --jobs "$JOBS" --tag --verbose --results "$OUTPUT_DIR/results" \
+"$LODCAT_WORD_COUNTER" "$MODEL_DIR/model.gz" "{}" "$OUTPUT_DIR/wordcounts/{#}"
