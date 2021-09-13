@@ -39,6 +39,7 @@ public class SQLUriVerbalizingSupplierDecorator extends AbstractUriVerbalizingSu
         List<String> values = new ArrayList<>();
         for (String type : types) {
             try {
+                PreparedStatement select = getSelectStatement();
                 select.setString(1, uri);
                 select.setString(2, type);
                 ResultSet results = select.executeQuery();
