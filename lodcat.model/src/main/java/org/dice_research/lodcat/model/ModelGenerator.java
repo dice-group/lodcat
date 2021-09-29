@@ -34,7 +34,8 @@ public class ModelGenerator {
     public static void main(String[] args) {
         if (args.length != 3) {
             System.err.println(
-                    "Wrong number of arguments! the following format is expected:\n\tModelGenerator <corpus-file> <output-file> <#topics>");
+                    "Wrong number of arguments! the following format is expected:\n\tModelGenerator <corpus-file> <output-file> <#topics> [#threads]");
+            return;
         }
         int numberOfTopics = Integer.parseInt(args[2]);
         File corpusFile = new File(args[0]);
@@ -45,17 +46,23 @@ public class ModelGenerator {
         if ((!modelFile.getParentFile().exists()) && (!modelFile.getParentFile().mkdirs())) {
             throw new IllegalArgumentException("Couldn't create output directory.");
         }
+        int numberOfThreads = 1;
+        if(args.length > 3) {
+            numberOfThreads = Integer.parseInt(args[3]);
+        }
 
-        ModelGenerator generator = new ModelGenerator(numberOfTopics, NUMBER_OF_STEPS);
+        ModelGenerator generator = new ModelGenerator(numberOfTopics, NUMBER_OF_STEPS, numberOfThreads);
         generator.run(corpusFile, modelFile);
     }
 
     private int numberOfTopics;
     private int numberOfSteps;
+    private int numberOfThreads;
 
-    public ModelGenerator(int numberOfTopics, int numberOfSteps) {
+    public ModelGenerator(int numberOfTopics, int numberOfSteps, int numberOfThreads) {
         this.numberOfTopics = numberOfTopics;
         this.numberOfSteps = numberOfSteps;
+        this.numberOfThreads = numberOfThreads;
     }
 
     public void run(File corpusFile, File modelFile) {
@@ -67,7 +74,7 @@ public class ModelGenerator {
             LOGGER.error("Couldn't load corpus from file. Aborting.");
             return;
         }
-        ModelingAlgorithm algorithm = new MalletLdaWrapper(numberOfTopics);
+        ModelingAlgorithm algorithm = new MalletLdaWrapper(numberOfTopics, numberOfThreads);
         LOGGER.info("Initializing algorithm...");
         algorithm.initialize(corpus);
         corpus = null;
