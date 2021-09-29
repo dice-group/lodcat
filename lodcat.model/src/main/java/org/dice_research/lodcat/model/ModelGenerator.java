@@ -1,6 +1,8 @@
 package org.dice_research.lodcat.model;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 
 import org.dice_research.topicmodeling.algorithm.mallet.MalletLdaWrapper;
 import org.dice_research.topicmodeling.algorithms.ModelingAlgorithm;
@@ -32,7 +34,7 @@ public class ModelGenerator {
 //    private static final String CORPUS_FILE = "/home/mroeder/tapioca/lodStats_all_log.object";
 
     public static void main(String[] args) {
-        if (args.length != 3) {
+        if ((args.length < 3) || (args.length > 4)) {
             System.err.println(
                     "Wrong number of arguments! the following format is expected:\n\tModelGenerator <corpus-file> <output-file> <#topics> [#threads]");
             return;
@@ -95,5 +97,12 @@ public class ModelGenerator {
         GZipProbTopicModelingAlgorithmStateWriter writer = new GZipProbTopicModelingAlgorithmStateWriter();
         writer.writeProbTopicModelState((ProbTopicModelingAlgorithmStateSupplier) algorithm, modelFile);
         LOGGER.info("Done.");
+        
+        if(algorithm instanceof Closeable) {
+            try {
+                ((Closeable)algorithm).close();
+            } catch (IOException e) {
+            }
+        }
     }
 }
