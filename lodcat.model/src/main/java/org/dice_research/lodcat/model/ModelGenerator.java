@@ -81,12 +81,7 @@ public class ModelGenerator {
         algorithm.initialize(corpus);
         corpus = null;
         LOGGER.info("Executing algorithm...");
-        for (int i = 0; i < numberOfSteps; ++i) {
-            algorithm.performNextStep();
-            if ((i % 100) == 0) {
-                LOGGER.info("Performed step #{}", i);
-            }
-        }
+        algorithm.performNextSteps(numberOfSteps);
 
         LOGGER.info("Writing top words file...");
         ModelCSVWriter modelCsvWriter = new ModelCSVWriter((ProbTopicModelingAlgorithmStateSupplier) algorithm, modelFile.getParentFile(), false);

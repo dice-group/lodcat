@@ -89,7 +89,7 @@ public class WordCounter {
         if (corpusFile.isDirectory()) {
             inputFiles = FileUtils.iterateFiles(corpusFile, FileFilterUtils.suffixFileFilter(".xml"), null);
         } else {
-        inputFiles = List.of(corpusFile).iterator();
+        inputFiles = Arrays.asList(corpusFile).iterator();
         }
 
     ExecutorService executorService = Executors.newFixedThreadPool(4); // FIXME number of jobs
