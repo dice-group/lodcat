@@ -77,7 +77,7 @@ public class WikipediaPartitionedCorpusPreproc implements Runnable {
 
     public void processPart(int partId) throws IOException {
         DocumentSupplier supplier;
-        File partFile = new File(outputDirectory.getAbsolutePath() + File.separator
+        File partFile = new File(inputDirectory.getAbsolutePath() + File.separator
                 + XmlBasedCorpusPartWriter.PART_FILE_PREFIX + partId + XmlBasedCorpusPartWriter.PART_FILE_SUFFIX);
         if (!partFile.exists()) {
             LOGGER.info("Skipping missing part {}", partId);
