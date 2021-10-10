@@ -66,7 +66,7 @@ public class WikipediaPartitionedCorpusPreproc implements Runnable {
 
     @Override
     public void run() {
-        for (int i = startPartId; i < endPartId; ++i) {
+        for (int i = startPartId; i <= endPartId; ++i) {
             try {
                 processPart(i);
             } catch (IOException e) {
