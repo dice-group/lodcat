@@ -13,8 +13,8 @@ while (<>) {
 
 my $term = 0;
 print "topic_id";
-for (@topics) {
-    /^topic/ and print ",term", $term++;
+for (@lines) {
+    print ",term", $term++;
 }
 print "\n";
 
