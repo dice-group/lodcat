@@ -1,0 +1,14 @@
+#!/bin/bash
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+set -a; . "$LODCAT_DIR"/.env; set +a
+
+INPUT_DIR="$1"
+OUTPUT_DIR="$2"
+JOBS="$3"
+
+find "$INPUT_DIR" -type f -name 'part*.xml' -print0 \
+|parallel -0 --jobs "$JOBS" --tag --verbose --results "$OUTPUT_DIR/logs" \
+--rpl "{..} s:^.*part([0-9]+)[.]xml$:\$1:" \
+java -Xmx24g -cp .:lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.WikipediaPartitionedCorpusPreproc "$INPUT_DIR" "$OUTPUT_DIR/data/" "{..}" "{..}"

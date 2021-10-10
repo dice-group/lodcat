@@ -1,0 +1,7 @@
+#!/bin/bash
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+set -a; . "$LODCAT_DIR"/.env; set +a
+
+java -Xmx1024g -cp .:lodcat.model/target/lodcat.model.jar org.dice_research.lodcat.model.WikipediaCorpusObjectGenerator "$@"
