@@ -2,6 +2,7 @@
 set -eu
 
 LODCAT_DIR="$(dirname $(realpath $0))"
+COHERENCE="$1"
 MODEL_DIR="$2"
 
 make -C "$LODCAT_DIR" --silent palmetto
@@ -9,5 +10,5 @@ make -C "$LODCAT_DIR" --silent palmetto
 FILES=( "$LODCAT_DIR"/palmetto-*.jar )
 PALMETTO_JAR="${FILES[0]}"
 "$LODCAT_DIR/topwords4palmetto" <"$MODEL_DIR/top_words.csv" >"$MODEL_DIR/top_words.palmetto"
-java -jar "$PALMETTO_JAR" "$HOME/.local/share/palmetto/indexes/wikipedia_bd" "$1" "$MODEL_DIR/top_words.palmetto" >"$MODEL_DIR/palmetto.out"
-awk 'NR > 1 { print $2 }' "$MODEL_DIR/palmetto.out" >"$MODEL_DIR/quality.csv"
+java -jar "$PALMETTO_JAR" "$HOME/.local/share/palmetto/indexes/wikipedia_bd" "$COHERENCE" "$MODEL_DIR/top_words.palmetto" >"$MODEL_DIR/palmetto-$COHERENCE.out"
+awk 'NR > 1 { print $2 }' "$MODEL_DIR/palmetto-$COHERENCE.out" >"$MODEL_DIR/quality-$COHERENCE.csv"

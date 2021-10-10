@@ -13,3 +13,4 @@ mkdir -p "$OUTPUT_DIR/$NUMBER_OF_TOPICS"
 MODEL_DIR="$(mktemp -p "$OUTPUT_DIR/$NUMBER_OF_TOPICS" -d "${i}_$(date +%s)_XXXXXXXXXX")"
 $MODEL_GENERATOR "$OBJECT_FILE" "$MODEL_DIR/model.gz" $NUMBER_OF_TOPICS
 "$LODCAT_DIR"/lodcat-measure-quality C_P "$MODEL_DIR"
+"$LODCAT_DIR"/lodcat-measure-quality C_V "$MODEL_DIR"
