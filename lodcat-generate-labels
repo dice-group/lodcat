@@ -2,6 +2,7 @@
 set -eu
 
 function cleanup {
+    echo -n "Removing container: "
     docker rm netl
 }
 
