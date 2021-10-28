@@ -38,12 +38,14 @@ public class VocabularyAddingWordIndexingSupplierDecorator extends WordIndexingS
         int wordIds[] = new int[terms.size()];
         int wordId;
         Term term;
+        String word;
         for (int w = 0; w < terms.size(); ++w) {
             term = terms.get(w);
-            wordId = vocabulary.getId(term.getLemma());
+            word = term.getLemma().toLowerCase();
+            wordId = vocabulary.getId(word);
             if (wordId < 0) {
-                vocabulary.add(term.getLemma());
-                wordId = vocabulary.getId(term.getLemma());
+                vocabulary.add(word);
+                wordId = vocabulary.getId(word);
             }
             wordIds[w] = wordId;
         }

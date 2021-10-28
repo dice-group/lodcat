@@ -39,9 +39,11 @@ public class VocabularyFilteringWordIndexingSupplierDecorator extends WordIndexi
         List<Integer> wordIds = new ArrayList<>(terms.size());
         int wordId;
         Term term;
+        String word;
         for (int w = 0; w < terms.size(); ++w) {
             term = terms.get(w);
-            wordId = vocabulary.getId(term.getLemma());
+            word = term.getLemma().toLowerCase();
+            wordId = vocabulary.getId(word);
             if (wordId < 0) {
                 terms.remove(w--);
             } else {
