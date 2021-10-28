@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dice_research.lodcat.preproc.TextProcessingSupplierDecorator;
+import org.dice_research.lodcat.preproc.DocumentNameFileFilter;
 import org.dice_research.lodcat.preproc.VocabularyAddingWordIndexingSupplierDecorator;
 import org.dice_research.topicmodeling.io.CorpusWriter;
 import org.dice_research.topicmodeling.io.gzip.GZipCorpusWriterDecorator;
@@ -13,6 +13,7 @@ import org.dice_research.topicmodeling.io.java.CorpusObjectWriter;
 import org.dice_research.topicmodeling.io.xml.stream.XmlPartsBasedDocumentSupplier;
 import org.dice_research.topicmodeling.preprocessing.ListCorpusCreator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
+import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentFilteringSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentTextWithTermInfoParsingSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.DocumentWordCountingSupplierDecorator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.decorator.PropertyRemovingSupplierDecorator;
@@ -35,9 +36,10 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
 
     private File inputDirectory;
     private File outputFile;
+    private File nameFilterFile;
 
     public static void main(String[] args) {
-        if (args.length != 2) {
+        if (args.length < 2) {
             System.err.println(
                     "Wrong number of arguments! the following format is expected:\n\tWikipediaCorpusObjectGenerator <wikipedia-xml-file> <output-dir>");
         }
@@ -46,13 +48,18 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
             throw new IllegalArgumentException("The given input directory does not exist.");
         }
         File outputFile = new File(args[1]);
+        File nameFilterFile = null;
+        if (args.length > 2) {
+            nameFilterFile = new File(args[2]);
+        }
 
-        (new WikipediaCorpusObjectGenerator(inputDirectory, outputFile)).run();
+        (new WikipediaCorpusObjectGenerator(inputDirectory, outputFile, nameFilterFile)).run();
     }
 
-    public WikipediaCorpusObjectGenerator(File inputDirectory, File outputFile) {
+    public WikipediaCorpusObjectGenerator(File inputDirectory, File outputFile, File nameFilterFile) {
         this.inputDirectory = inputDirectory;
         this.outputFile = outputFile;
+        this.nameFilterFile = nameFilterFile;
     }
 
     @Override
@@ -62,6 +69,11 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
 
         // Parse the term tokenized text from the document text
         supplier = new DocumentTextWithTermInfoParsingSupplierDecorator(supplier);
+
+        // Filter out documents by title
+        if (nameFilterFile != null) {
+            supplier = new DocumentFilteringSupplierDecorator(supplier, new DocumentNameFileFilter(nameFilterFile));
+        }
 
         // Index words
         Vocabulary vocabulary = new SimpleVocabulary();
