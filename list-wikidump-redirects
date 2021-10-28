@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+import sys
+from lxml import etree
+
+total = 0
+for action, elem in etree.iterparse(sys.argv[1], events=('end',)):
+    localname = etree.QName(elem).localname
+    if localname == 'page':
+        redirects = elem.xpath('*[local-name()="redirect"]')
+        if redirects:
+            assert len(redirects) == 1
+            redirect = redirects[0].get('title')
+            # does every page have a title?
+            titles = elem.xpath('*[local-name()="title"]')
+            assert len(titles) == 1
+            title = titles[0].text
+            print(title)
+            # print("%s -> %s" % (title, redirect), file=sys.stderr)
+            total += 1
+        elem.clear()
+        while elem.getprevious() is not None:
+            del elem.getparent()[0]
+print("# Total: %d" % total, file=sys.stderr)
