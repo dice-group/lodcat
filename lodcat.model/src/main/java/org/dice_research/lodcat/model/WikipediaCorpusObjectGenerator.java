@@ -10,6 +10,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.dice_research.lodcat.preproc.DocumentCountLimitingSupplierDecorator;
 import org.dice_research.lodcat.preproc.DocumentNameFileFilter;
 import org.dice_research.lodcat.preproc.VocabularyAddingWordIndexingSupplierDecorator;
 import org.dice_research.topicmodeling.io.CorpusWriter;
@@ -42,12 +43,14 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
     private File inputDirectory;
     private File outputFile;
     private File nameFilterFile;
+    private Number limit;
 
     public static void main(String[] args) throws Exception {
         Options options = new Options();
         options.addOption(Option.builder("i").longOpt("input").hasArg().type(File.class).required().desc("Input directory").build());
         options.addOption(Option.builder("o").longOpt("output").hasArg().type(File.class).required().desc("Output file").build());
         options.addOption(Option.builder("n").longOpt("name-filter").hasArg().type(File.class).desc("File with a list of document names to filter out").build());
+        options.addOption(Option.builder("l").longOpt("limit").hasArg().type(Number.class).desc("Stop after processing that many documents (for debugging)").build());
 
         CommandLineParser parser = new DefaultParser();
         CommandLine line = parser.parse(options, args);
@@ -58,14 +61,16 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
         }
         File outputFile = (File) line.getParsedOptionValue("output");
         File nameFilterFile = (File) line.getParsedOptionValue("name-filter");
+        Number limit = ((Number) line.getParsedOptionValue("limit"));
 
-        (new WikipediaCorpusObjectGenerator(inputDirectory, outputFile, nameFilterFile)).run();
+        (new WikipediaCorpusObjectGenerator(inputDirectory, outputFile, nameFilterFile, limit)).run();
     }
 
-    public WikipediaCorpusObjectGenerator(File inputDirectory, File outputFile, File nameFilterFile) {
+    public WikipediaCorpusObjectGenerator(File inputDirectory, File outputFile, File nameFilterFile, Number limit) {
         this.inputDirectory = inputDirectory;
         this.outputFile = outputFile;
         this.nameFilterFile = nameFilterFile;
+        this.limit = limit;
     }
 
     @Override
@@ -76,6 +81,10 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
         // Filter out documents by title
         if (nameFilterFile != null) {
             supplier = new DocumentFilteringSupplierDecorator(supplier, new DocumentNameFileFilter(nameFilterFile));
+        }
+
+        if (limit != null) {
+            supplier = new DocumentCountLimitingSupplierDecorator(supplier, limit.longValue());
         }
 
         // Parse the term tokenized text from the document text
