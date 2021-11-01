@@ -5,6 +5,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.dice_research.lodcat.preproc.DocumentNameFileFilter;
 import org.dice_research.lodcat.preproc.VocabularyAddingWordIndexingSupplierDecorator;
 import org.dice_research.topicmodeling.io.CorpusWriter;
@@ -38,20 +43,21 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
     private File outputFile;
     private File nameFilterFile;
 
-    public static void main(String[] args) {
-        if (args.length < 2) {
-            System.err.println(
-                    "Wrong number of arguments! the following format is expected:\n\tWikipediaCorpusObjectGenerator <wikipedia-xml-file> <output-dir>");
-        }
-        File inputDirectory = new File(args[0]);
+    public static void main(String[] args) throws Exception {
+        Options options = new Options();
+        options.addOption(Option.builder("i").longOpt("input").hasArg().type(File.class).required().desc("Input directory").build());
+        options.addOption(Option.builder("o").longOpt("output").hasArg().type(File.class).required().desc("Output file").build());
+        options.addOption(Option.builder("n").longOpt("name-filter").hasArg().type(File.class).desc("File with a list of document names to filter out").build());
+
+        CommandLineParser parser = new DefaultParser();
+        CommandLine line = parser.parse(options, args);
+
+        File inputDirectory = (File) line.getParsedOptionValue("input");
         if (!inputDirectory.exists()) {
             throw new IllegalArgumentException("The given input directory does not exist.");
         }
-        File outputFile = new File(args[1]);
-        File nameFilterFile = null;
-        if (args.length > 2) {
-            nameFilterFile = new File(args[2]);
-        }
+        File outputFile = (File) line.getParsedOptionValue("output");
+        File nameFilterFile = (File) line.getParsedOptionValue("name-filter");
 
         (new WikipediaCorpusObjectGenerator(inputDirectory, outputFile, nameFilterFile)).run();
     }

@@ -16,6 +16,19 @@
 ./lodcat-part-corpus <input directory> <output directory> <documents per file> <number of parallel jobs>
 ```
 
+## Preprocess a splitted corpus
+
+```
+./lodcat-preproc-wiki-parts <input directory> <output directory> <number of parallel jobs>
+```
+
+## Create a corpus object from a splitted corpus
+
+```
+./lodcat-generate-wiki-object --input <input directory> --output <output file> [--name-filter <file with list of doc names to filter out>]
+```
+
+
 ## Measure quality of topics
 
 Topic quality is measured with [Palmetto](https://github.com/dice-group/Palmetto).
