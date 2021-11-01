@@ -73,13 +73,13 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
         DocumentSupplier supplier;
         supplier = new XmlPartsBasedDocumentSupplier(inputDirectory);
 
-        // Parse the term tokenized text from the document text
-        supplier = new DocumentTextWithTermInfoParsingSupplierDecorator(supplier);
-
         // Filter out documents by title
         if (nameFilterFile != null) {
             supplier = new DocumentFilteringSupplierDecorator(supplier, new DocumentNameFileFilter(nameFilterFile));
         }
+
+        // Parse the term tokenized text from the document text
+        supplier = new DocumentTextWithTermInfoParsingSupplierDecorator(supplier);
 
         // Index words
         Vocabulary vocabulary = new SimpleVocabulary();
