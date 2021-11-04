@@ -16,6 +16,7 @@ import org.dice_research.lodcat.preproc.VocabularyAddingWordIndexingSupplierDeco
 import org.dice_research.topicmodeling.io.CorpusWriter;
 import org.dice_research.topicmodeling.io.gzip.GZipCorpusWriterDecorator;
 import org.dice_research.topicmodeling.io.java.CorpusObjectWriter;
+import org.dice_research.topicmodeling.io.xml.CorpusXmlWriter;
 import org.dice_research.topicmodeling.io.xml.stream.XmlPartsBasedDocumentSupplier;
 import org.dice_research.topicmodeling.preprocessing.ListCorpusCreator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
@@ -31,6 +32,7 @@ import org.dice_research.topicmodeling.utils.doc.DocumentProperty;
 import org.dice_research.topicmodeling.utils.doc.DocumentText;
 import org.dice_research.topicmodeling.utils.doc.DocumentTextWithTermInfo;
 import org.dice_research.topicmodeling.utils.doc.DocumentTextWordIds;
+import org.dice_research.topicmodeling.utils.doc.DocumentWordCounts;
 import org.dice_research.topicmodeling.utils.doc.TermTokenizedText;
 import org.dice_research.topicmodeling.utils.vocabulary.SimpleVocabulary;
 import org.dice_research.topicmodeling.utils.vocabulary.Vocabulary;
@@ -41,8 +43,12 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaCorpusObjectGenerator.class);
 
+    private static final String TYPE_OBJECT_GZ = "object.gz";
+    private static final String TYPE_XML = "xml";
+
     private File inputDirectory;
     private File outputFile;
+    private String outputType;
     private File nameFilterFile;
     private Number limit;
 
@@ -50,6 +56,7 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
         Options options = new Options();
         options.addOption(Option.builder("i").longOpt("input").hasArg().type(File.class).required().desc("Input directory").build());
         options.addOption(Option.builder("o").longOpt("output").hasArg().type(File.class).required().desc("Output file").build());
+        options.addOption(Option.builder("ot").longOpt("output-type").hasArg().desc("Output type (object.gz or xml)").build());
         options.addOption(Option.builder("n").longOpt("name-filter").hasArg().type(File.class).desc("File with a list of document names to filter out").build());
         options.addOption(Option.builder("l").longOpt("limit").hasArg().type(Number.class).desc("Stop after processing that many documents (for debugging)").build());
 
@@ -61,15 +68,17 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
             throw new IllegalArgumentException("The given input directory does not exist.");
         }
         File outputFile = (File) line.getParsedOptionValue("output");
+        String outputType = line.getOptionValue("output-type", TYPE_OBJECT_GZ);
         File nameFilterFile = (File) line.getParsedOptionValue("name-filter");
         Number limit = ((Number) line.getParsedOptionValue("limit"));
 
-        (new WikipediaCorpusObjectGenerator(inputDirectory, outputFile, nameFilterFile, limit)).run();
+        (new WikipediaCorpusObjectGenerator(inputDirectory, outputFile, outputType, nameFilterFile, limit)).run();
     }
 
-    public WikipediaCorpusObjectGenerator(File inputDirectory, File outputFile, File nameFilterFile, Number limit) {
+    public WikipediaCorpusObjectGenerator(File inputDirectory, File outputFile, String outputType, File nameFilterFile, Number limit) {
         this.inputDirectory = inputDirectory;
         this.outputFile = outputFile;
+        this.outputType = outputType;
         this.nameFilterFile = nameFilterFile;
         this.limit = limit;
     }
@@ -111,8 +120,9 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
         Corpus corpus = preprocessor.getCorpus();
         corpus.addProperty(new CorpusVocabulary(vocabulary));
 
-        LOGGER.info("Writing corpus...");
-        CorpusWriter writer = new GZipCorpusWriterDecorator(new CorpusObjectWriter());
+        LOGGER.info("Writing corpus: {}", outputFile);
+        LOGGER.info("Corpus type: {}", outputType);
+        CorpusWriter writer = createCorpusWriter(outputType);
         try {
             writer.writeCorpus(corpus, outputFile);
         } catch (IOException e) {
@@ -120,6 +130,18 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
             return;
         }
         LOGGER.info("Done.");
+    }
+
+    private static CorpusWriter createCorpusWriter(String outputType) {
+        switch (outputType) {
+        case TYPE_OBJECT_GZ:
+            return new GZipCorpusWriterDecorator(new CorpusObjectWriter());
+        case TYPE_XML:
+            CorpusXmlWriter writer = new CorpusXmlWriter();
+            writer.registerParseableDocumentProperty(DocumentWordCounts.class);
+            return writer;
+        }
+        throw new IllegalArgumentException(outputType);
     }
 
 }
