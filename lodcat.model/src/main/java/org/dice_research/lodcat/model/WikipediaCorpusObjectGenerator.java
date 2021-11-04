@@ -29,6 +29,7 @@ import org.dice_research.topicmodeling.utils.corpus.properties.CorpusVocabulary;
 import org.dice_research.topicmodeling.utils.doc.Document;
 import org.dice_research.topicmodeling.utils.doc.DocumentProperty;
 import org.dice_research.topicmodeling.utils.doc.DocumentText;
+import org.dice_research.topicmodeling.utils.doc.DocumentTextWithTermInfo;
 import org.dice_research.topicmodeling.utils.doc.DocumentTextWordIds;
 import org.dice_research.topicmodeling.utils.doc.TermTokenizedText;
 import org.dice_research.topicmodeling.utils.vocabulary.SimpleVocabulary;
@@ -100,6 +101,7 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
         List<Class<? extends DocumentProperty>> propertiesToRemove = new ArrayList<Class<? extends DocumentProperty>>();
         propertiesToRemove.add(DocumentText.class);
         propertiesToRemove.add(TermTokenizedText.class);
+        propertiesToRemove.add(DocumentTextWithTermInfo.class); // Not needed
         propertiesToRemove.add(DocumentTextWordIds.class);
         supplier = new PropertyRemovingSupplierDecorator(supplier, propertiesToRemove);
 
