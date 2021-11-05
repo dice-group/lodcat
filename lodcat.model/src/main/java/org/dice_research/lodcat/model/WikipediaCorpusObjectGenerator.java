@@ -1,5 +1,6 @@
 package org.dice_research.lodcat.model;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,12 +12,13 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.dice_research.lodcat.preproc.DocumentCountLimitingSupplierDecorator;
+import org.dice_research.lodcat.preproc.DocumentCountLoggingSupplierDecorator;
 import org.dice_research.lodcat.preproc.DocumentNameFileFilter;
 import org.dice_research.lodcat.preproc.VocabularyAddingWordIndexingSupplierDecorator;
 import org.dice_research.topicmodeling.io.CorpusWriter;
 import org.dice_research.topicmodeling.io.gzip.GZipCorpusWriterDecorator;
 import org.dice_research.topicmodeling.io.java.CorpusObjectWriter;
-import org.dice_research.topicmodeling.io.xml.CorpusXmlWriter;
+import org.dice_research.topicmodeling.io.xml.XmlWritingDocumentConsumer;
 import org.dice_research.topicmodeling.io.xml.stream.XmlPartsBasedDocumentSupplier;
 import org.dice_research.topicmodeling.preprocessing.ListCorpusCreator;
 import org.dice_research.topicmodeling.preprocessing.docsupplier.DocumentSupplier;
@@ -114,34 +116,44 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
         propertiesToRemove.add(DocumentTextWordIds.class);
         supplier = new PropertyRemovingSupplierDecorator(supplier, propertiesToRemove);
 
-        ListCorpusCreator<List<Document>> preprocessor = new ListCorpusCreator<List<Document>>(supplier,
-                new DocumentListCorpus<List<Document>>(new ArrayList<Document>()));
-        LOGGER.info("Processing corpus...");
-        Corpus corpus = preprocessor.getCorpus();
-        corpus.addProperty(new CorpusVocabulary(vocabulary));
-
         LOGGER.info("Writing corpus: {}", outputFile);
         LOGGER.info("Corpus type: {}", outputType);
-        CorpusWriter writer = createCorpusWriter(outputType);
+
         try {
-            writer.writeCorpus(corpus, outputFile);
+            supplier = new DocumentCountLoggingSupplierDecorator(supplier);
+            Closeable docCountLogger = (Closeable) supplier;
+
+            switch (outputType) {
+            case TYPE_OBJECT_GZ:
+                ListCorpusCreator<List<Document>> preprocessor = new ListCorpusCreator<List<Document>>(supplier,
+                        new DocumentListCorpus<List<Document>>(new ArrayList<Document>()));
+                Corpus corpus = preprocessor.getCorpus();
+                corpus.addProperty(new CorpusVocabulary(vocabulary));
+
+                CorpusWriter writer = new GZipCorpusWriterDecorator(new CorpusObjectWriter());
+                writer.writeCorpus(corpus, outputFile);
+                break;
+            case TYPE_XML:
+                try (XmlWritingDocumentConsumer consumer = XmlWritingDocumentConsumer.createXmlWritingDocumentConsumer(outputFile)) {
+                    consumer.registerParseableDocumentProperty(DocumentWordCounts.class);
+
+                    Document document;
+                    while (true) {
+                        document = supplier.getNextDocument();
+                        if (document == null) break;
+                        consumer.accept(document);
+                    }
+                }
+                break;
+            default:
+                throw new IllegalArgumentException(outputType);
+            }
+            docCountLogger.close();
         } catch (IOException e) {
             LOGGER.error("Exception while writing corpus. Aborting.", e);
             return;
         }
         LOGGER.info("Done.");
-    }
-
-    private static CorpusWriter createCorpusWriter(String outputType) {
-        switch (outputType) {
-        case TYPE_OBJECT_GZ:
-            return new GZipCorpusWriterDecorator(new CorpusObjectWriter());
-        case TYPE_XML:
-            CorpusXmlWriter writer = new CorpusXmlWriter();
-            writer.registerParseableDocumentProperty(DocumentWordCounts.class);
-            return writer;
-        }
-        throw new IllegalArgumentException(outputType);
     }
 
 }
