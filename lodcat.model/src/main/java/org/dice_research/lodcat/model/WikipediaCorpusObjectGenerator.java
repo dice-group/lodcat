@@ -134,7 +134,7 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
                 writer.writeCorpus(corpus, outputFile);
                 break;
             case TYPE_XML:
-                try (XmlWritingDocumentConsumer consumer = XmlWritingDocumentConsumer.createXmlWritingDocumentConsumer(outputFile)) {
+                try (XmlWritingDocumentConsumer consumer = XmlWritingDocumentConsumer.createXmlWritingDocumentConsumer(outputFile, vocabulary)) {
                     consumer.registerParseableDocumentProperty(DocumentWordCounts.class);
 
                     Document document;
