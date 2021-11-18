@@ -14,6 +14,7 @@ def cleanup_etree(elem):
 class DiceTopicModelingXmlCorpus(interfaces.CorpusABC):
     def __init__(self, fname, dictionary=None):
         self.fname = fname
+        self.build_dictionary = False
         if dictionary is not None:
             self.dictionary = dictionary
         else:
@@ -21,6 +22,7 @@ class DiceTopicModelingXmlCorpus(interfaces.CorpusABC):
             self.init_dictionary()
 
     def init_dictionary(self):
+        self.build_dictionary = True
         for document in self:
             self.dictionary.num_docs += 1
             self.dictionary.num_nnz += len(document)
@@ -28,6 +30,7 @@ class DiceTopicModelingXmlCorpus(interfaces.CorpusABC):
                 self.dictionary.cfs[word_id] = self.dictionary.cfs.get(word_id, 0) + freq
                 self.dictionary.dfs[word_id] = self.dictionary.dfs.get(word_id, 0) + 1
                 self.dictionary.num_pos += freq
+        self.build_dictionary = False
 
     def prepare_document(self, keys=[], values=[], allocated=[], **kwargs):
         if self.dictionary.origid2id is not None:
@@ -52,7 +55,7 @@ class DiceTopicModelingXmlCorpus(interfaces.CorpusABC):
                 else:
                     logging.info('Empty document after dictionary filtering')
                 cleanup_etree(elem)
-            elif localname == 'word':
+            elif self.build_dictionary and localname == 'word':
                 id = int(elem.get('id'))
                 word = elem.text
                 self.dictionary.id2token[id] = word
