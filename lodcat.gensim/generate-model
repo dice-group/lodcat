@@ -20,16 +20,19 @@ parser.add_argument('--dictionary', dest='dictionary_file', required=True, help=
 parser.add_argument('--num-topics', dest='num_topics', required=True, type=int, help='number of topics')
 args = parser.parse_args()
 
-dictionary = Dictionary.load(args.dictionary_file)
+dictionary = Dictionary.load(args.dictionary_file)  # if args.dictionary_file else None
 logging.info('Dictionary: %s', dictionary)
+
+orig_token2id = dictionary.token2id
+dictionary.filter_extremes(no_below=20, no_above=0.5, keep_n=None)
+dictionary.id2token = {id: token for token, id in dictionary.token2id.items()}
+dictionary.origid2id = {orig_token2id[token]: dictionary.token2id[token] for token in dictionary.token2id if token in dictionary.token2id}
 
 corpus = DiceTopicModelingXmlCorpus(args.input_file, dictionary=dictionary)
 
 os.makedirs(args.output_dir, exist_ok=True)
 model_file = os.path.join(args.output_dir, MODEL_FILE)
 top_words_file = os.path.join(args.output_dir, TOP_WORDS_FILE)
-
-# TODO filter_extremes
 
 num_topics = args.num_topics
 chunksize = 100000000  # covers English Wikipedia
@@ -38,6 +41,7 @@ eval_every = 1000
 
 model = LdaModel(
     corpus=corpus,
+    id2word=corpus.dictionary.id2token,
     chunksize=chunksize,
     alpha='auto',
     eta='auto',

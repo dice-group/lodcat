@@ -2,10 +2,7 @@ from gensim import interfaces
 from gensim.corpora.dictionary import Dictionary
 import json
 from lxml import etree
-
-
-def prepare_document(keys=[], values=[], allocated=[], **kwargs):
-    return list((k, v) for k, v, a in zip(keys, values, allocated) if a)
+import logging
 
 
 def cleanup_etree(elem):
@@ -17,8 +14,11 @@ def cleanup_etree(elem):
 class DiceTopicModelingXmlCorpus(interfaces.CorpusABC):
     def __init__(self, fname, dictionary=None):
         self.fname = fname
-        self.id2word = {}
-        self.dictionary = dictionary if dictionary is not None else Dictionary()
+        if dictionary is not None:
+            self.dictionary = dictionary
+        else:
+            self.dictionary = Dictionary()
+            self.init_dictionary()
 
     def init_dictionary(self):
         for document in self:
@@ -29,14 +29,28 @@ class DiceTopicModelingXmlCorpus(interfaces.CorpusABC):
                 self.dictionary.dfs[word_id] = self.dictionary.dfs.get(word_id, 0) + 1
                 self.dictionary.num_pos += freq
 
+    def prepare_document(self, keys=[], values=[], allocated=[], **kwargs):
+        if self.dictionary.origid2id is not None:
+            return list((self.dictionary.origid2id[k], v) for k, v, a in zip(keys, values, allocated) if a and k in self.dictionary.origid2id)
+        else:
+            return list((k, v) for k, v, a in zip(keys, values, allocated) if a)
+
     def __iter__(self):
+        logging.debug('Reading documents: %s', self.fname)
         total = 0
         for action, elem in etree.iterparse(self.fname, events=('end',)):
             localname = etree.QName(elem).localname
             if localname == 'Document':
                 word_counts = elem.xpath('*[local-name()="DocumentWordCounts"]')
                 assert len(word_counts) == 1
-                yield prepare_document(**json.loads(word_counts[0].text))
+                document = self.prepare_document(**json.loads(word_counts[0].text))
+                if len(document) != 0:
+                    yield document
+                    total += 1
+                    if total % 10000 == 0:
+                        logging.debug('Documents read: %d', total)
+                else:
+                    logging.info('Empty document after dictionary filtering')
                 cleanup_etree(elem)
             elif localname == 'word':
                 id = int(elem.get('id'))
@@ -44,4 +58,11 @@ class DiceTopicModelingXmlCorpus(interfaces.CorpusABC):
                 self.dictionary.id2token[id] = word
                 self.dictionary.token2id[word] = id
                 cleanup_etree(elem)
+        logging.debug('Total documents: %d', total)
         self.length = total
+
+    def __len__(self):
+        """Get the corpus size = the total number of documents in it."""
+        if self.length is None:
+            raise Exception("length is not ready")
+        return self.length

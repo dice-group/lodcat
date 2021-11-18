@@ -12,10 +12,7 @@ parser.add_argument('--output', dest='output_file', required=True, help='output 
 args = parser.parse_args()
 
 corpus = DiceTopicModelingXmlCorpus(args.input_file)
-
-os.makedirs(os.path.dirname(args.output_file), exist_ok=True)
-
-corpus.init_dictionary()
 logging.info('Dictionary: %s', corpus.dictionary)
 
+os.makedirs(os.path.dirname(args.output_file), exist_ok=True)
 corpus.dictionary.save(args.output_file)
