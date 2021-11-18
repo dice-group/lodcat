@@ -36,7 +36,7 @@ top_words_file = os.path.join(args.output_dir, TOP_WORDS_FILE)
 
 num_topics = args.num_topics
 chunksize = 100000000  # covers English Wikipedia
-iterations = 10000
+iterations = 1000
 eval_every = 1000
 
 model = LdaModel(
