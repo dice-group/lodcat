@@ -41,6 +41,7 @@ class DiceTopicModelingXmlCorpus(interfaces.CorpusABC):
     def __iter__(self):
         logging.debug('Reading documents: %s', self.fname)
         total = 0
+        total_empty = 0
         for action, elem in etree.iterparse(self.fname, events=('end',)):
             localname = etree.QName(elem).localname
             if localname == 'Document':
@@ -53,7 +54,7 @@ class DiceTopicModelingXmlCorpus(interfaces.CorpusABC):
                     if total % 10000 == 0:
                         logging.debug('Documents read: %d', total)
                 else:
-                    logging.info('Empty document after dictionary filtering')
+                    total_empty += 1
                 cleanup_etree(elem)
             elif self.build_dictionary and localname == 'word':
                 id = int(elem.get('id'))
@@ -62,6 +63,7 @@ class DiceTopicModelingXmlCorpus(interfaces.CorpusABC):
                 self.dictionary.token2id[word] = id
                 cleanup_etree(elem)
         logging.debug('Total documents: %d', total)
+        logging.debug('Total documents discarded after filtering extremes: %d', total_empty)
         self.length = total
 
     def __len__(self):
