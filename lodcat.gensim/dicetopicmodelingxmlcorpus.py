@@ -15,21 +15,19 @@ def cleanup_etree(elem):
 
 
 class DiceTopicModelingXmlCorpus(interfaces.CorpusABC):
-    def __init__(self, fname):
+    def __init__(self, fname, dictionary=None):
         self.fname = fname
-        self.filter = False
-        self.dictionary = Dictionary()
+        self.id2word = {}
+        self.dictionary = dictionary if dictionary is not None else Dictionary()
 
     def init_dictionary(self):
         for document in self:
-            pass  # FIXME read the corpus once to read the dictionary
-        for document in self:
             self.dictionary.num_docs += 1
+            self.dictionary.num_nnz += len(document)
             for word_id, freq in document:
                 self.dictionary.cfs[word_id] = self.dictionary.cfs.get(word_id, 0) + freq
                 self.dictionary.dfs[word_id] = self.dictionary.dfs.get(word_id, 0) + 1
                 self.dictionary.num_pos += freq
-                self.dictionary.num_nnz += 1
 
     def __iter__(self):
         total = 0
@@ -38,10 +36,7 @@ class DiceTopicModelingXmlCorpus(interfaces.CorpusABC):
             if localname == 'Document':
                 word_counts = elem.xpath('*[local-name()="DocumentWordCounts"]')
                 assert len(word_counts) == 1
-                document = prepare_document(**json.loads(word_counts[0].text))
-                #if self.filter:
-                #    document = list((k, v) for k, v in document if self.dictionary.)
-                yield document
+                yield prepare_document(**json.loads(word_counts[0].text))
                 cleanup_etree(elem)
             elif localname == 'word':
                 id = int(elem.get('id'))
