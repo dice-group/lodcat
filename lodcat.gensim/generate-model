@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+from dicetopicmodelingxmlcorpus import DiceTopicModelingXmlCorpus
+from gensim.models import LdaModel
+from itertools import chain
+import argparse
+import csv
+import logging
+import os
+
+MODEL_FILE = 'gensim-ldamodel'
+TOP_WORDS_FILE = 'top_words.csv'
+
+logging.basicConfig(level=logging.DEBUG)
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--input', dest='input_file', required=True, help='corpus xml file')
+parser.add_argument('--output', dest='output_dir', required=True, help='output directory')
+parser.add_argument('--num-topics', dest='num_topics', required=True, type=int, help='number of topics')
+args = parser.parse_args()
+
+corpus = DiceTopicModelingXmlCorpus(args.input_file)
+
+os.makedirs(args.output_dir, exist_ok=True)
+model_file = os.path.join(args.output_dir, MODEL_FILE)
+top_words_file = os.path.join(args.output_dir, TOP_WORDS_FILE)
+
+# TODO filter_extremes
+
+num_topics = args.num_topics
+chunksize = 100000000  # covers English Wikipedia
+iterations = 10000
+eval_every = 1000
+
+corpus.init_dictionary()
+
+logging.info('Dictionary: %s', corpus.dictionary)
+
+model = LdaModel(
+    corpus=corpus,
+    chunksize=chunksize,
+    alpha='auto',
+    eta='auto',
+    iterations=iterations,
+    num_topics=num_topics,
+    passes=1,  # one pass through the corpus
+    update_every=0,  # batch learning
+    eval_every=eval_every
+)
+
+logging.info('Model: %s', model_file)
+model.save(model_file)
+
+# Generate top_words.csv
+topn = 10
+top_words = [model.get_topic_terms(topic_id, topn=topn) for topic_id in range(0, num_topics)]
+logging.info('Top words: %s', top_words_file)
+with open(top_words_file, 'w') as csvfile:
+    csvwriter = csv.writer(csvfile, delimiter=';', lineterminator='\n')
+    csvwriter.writerow(chain.from_iterable((f'topic{topic_id}', '') for topic_id in range(0, num_topics)))
+    for n in range(0, topn):
+        csvwriter.writerow(chain.from_iterable((corpus.dictionary.id2token.get(word_id), prob) for word_id, prob in (top_words[topic_id][n] for topic_id in range(0, num_topics))))
