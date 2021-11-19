@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from dicetopicmodelingxmlcorpus import DiceTopicModelingXmlCorpus
+from gensim.corpora import MmCorpus
 from gensim.corpora.dictionary import Dictionary
 from gensim.models import LdaModel
 from itertools import chain
@@ -8,13 +9,19 @@ import csv
 import logging
 import os
 
+corpus_types = {
+    'xml': DiceTopicModelingXmlCorpus,
+    'mm': MmCorpus,
+}
+
 MODEL_FILE = 'gensim-ldamodel'
 TOP_WORDS_FILE = 'top_words.csv'
 
 logging.basicConfig(level=logging.DEBUG)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--input', dest='input_file', required=True, help='corpus xml file')
+parser.add_argument('--input', dest='input_file', required=True, help='corpus file')
+parser.add_argument('--input-format', dest='input_format', required=True, choices=corpus_types.keys(), help='corpus type')
 parser.add_argument('--output', dest='output_dir', required=True, help='output directory')
 parser.add_argument('--dictionary', dest='dictionary_file', required=True, help='gensim dictionary file')
 parser.add_argument('--num-topics', dest='num_topics', required=True, type=int, help='number of topics')
@@ -23,12 +30,11 @@ args = parser.parse_args()
 dictionary = Dictionary.load(args.dictionary_file)  # if args.dictionary_file else None
 logging.info('Dictionary: %s', dictionary)
 
-orig_token2id = dictionary.token2id
-dictionary.filter_extremes(no_below=20, no_above=0.5, keep_n=100_000)
-dictionary.id2token = {id: token for token, id in dictionary.token2id.items()}
-dictionary.origid2id = {orig_token2id[token]: dictionary.token2id[token] for token in dictionary.token2id if token in dictionary.token2id}
-
-corpus = DiceTopicModelingXmlCorpus(args.input_file, dictionary=dictionary)
+CorpusClass = corpus_types[args.input_format]
+if CorpusClass is DiceTopicModelingXmlCorpus:
+    corpus = CorpusClass(args.input_file, dictionary=dictionary)
+else:
+    corpus = CorpusClass(args.input_file)
 
 os.makedirs(args.output_dir, exist_ok=True)
 model_file = os.path.join(args.output_dir, MODEL_FILE)
@@ -41,7 +47,7 @@ eval_every = 1000
 
 model = LdaModel(
     corpus=corpus,
-    id2word=corpus.dictionary.id2token,
+    id2word=dictionary.id2token,
     chunksize=chunksize,
     alpha='auto',
     eta='auto',
@@ -63,4 +69,4 @@ with open(top_words_file, 'w') as csvfile:
     csvwriter = csv.writer(csvfile, delimiter=';', lineterminator='\n')
     csvwriter.writerow(chain.from_iterable((f'topic{topic_id}', '') for topic_id in range(0, num_topics)))
     for n in range(0, topn):
-        csvwriter.writerow(chain.from_iterable((corpus.dictionary.id2token.get(word_id), prob) for word_id, prob in (top_words[topic_id][n] for topic_id in range(0, num_topics))))
+        csvwriter.writerow(chain.from_iterable((dictionary.id2token.get(word_id), prob) for word_id, prob in (top_words[topic_id][n] for topic_id in range(0, num_topics))))

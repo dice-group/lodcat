@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+from dicetopicmodelingxmlcorpus import DiceTopicModelingXmlCorpus
+from gensim.corpora import MmCorpus
+from gensim.corpora.dictionary import Dictionary
+import argparse
+import logging
+import os
+
+MODEL_FILE = 'gensim-ldamodel'
+TOP_WORDS_FILE = 'top_words.csv'
+
+logging.basicConfig(level=logging.DEBUG)
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--input-corpus', dest='input_corpus_file', required=True, help='input corpus xml file')
+parser.add_argument('--input-dictionary', dest='input_dictionary_file', required=True, help='input gensim dictionary file')
+parser.add_argument('--output-corpus', dest='output_corpus_file', required=True, help='output mm file')
+parser.add_argument('--output-dictionary', dest='output_dictionary_file', required=True, help='output gensim dictionary file')
+args = parser.parse_args()
+
+dictionary = Dictionary.load(args.input_dictionary_file)
+logging.info('Dictionary: %s', dictionary)
+
+# Filter extremes and fix the dictionary.
+orig_token2id = dictionary.token2id
+dictionary.filter_extremes(no_below=20, no_above=0.5, keep_n=None)
+dictionary.id2token = {id: token for token, id in dictionary.token2id.items()}
+dictionary.origid2id = {orig_token2id[token]: dictionary.token2id[token] for token in dictionary.token2id if token in dictionary.token2id}
+
+# Pass the new dictionary to adapt the corpus to it.
+corpus = DiceTopicModelingXmlCorpus(args.input_corpus_file, dictionary=dictionary)
+
+# Save the corpus in MM format.
+output_corpus_dir = os.path.dirname(args.output_corpus_file)
+logging.debug('Creating directories: %s', output_corpus_dir)
+os.makedirs(output_corpus_dir, exist_ok=True)
+MmCorpus.serialize(args.output_corpus_file, corpus)
+
+# Save the dictionary.
+output_dictionary_dir = os.path.dirname(args.output_dictionary_file)
+logging.debug('Creating directories: %s', output_dictionary_dir)
+os.makedirs(output_dictionary_dir, exist_ok=True)
+corpus.dictionary.save(args.output_dictionary_file)
