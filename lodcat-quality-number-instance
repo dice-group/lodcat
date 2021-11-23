@@ -12,7 +12,9 @@ i=$5
 
 mkdir -p "$OUTPUT_DIR/$NUMBER_OF_TOPICS"
 MODEL_DIR="$(mktemp -p "$OUTPUT_DIR/$NUMBER_OF_TOPICS" -d "${i}_$(date +%s)_XXXXXXXXXX")"
-"$LODCAT_DIR"/lodcat.gensim/generate-model --input "$CORPUS_FILE" --num-topics "$NUMBER_OF_TOPICS" --output "$MODEL_DIR"
+"$LODCAT_DIR"/lodcat.gensim/generate-model --input "$CORPUS_FILE" --input-format mm --dictionary "$(dirname "$CORPUS_FILE")/dictionary" --num-topics "$NUMBER_OF_TOPICS" --output "$MODEL_DIR"
 # $MODEL_GENERATOR "$CORPUS_FILE" "$MODEL_DIR/model.gz" $NUMBER_OF_TOPICS $NUMBER_OF_THREADS
+echo "Measure quality: C_P"
 "$LODCAT_DIR"/lodcat-measure-quality C_P "$MODEL_DIR"
+echo "Measure quality: C_V"
 "$LODCAT_DIR"/lodcat-measure-quality C_V "$MODEL_DIR"
