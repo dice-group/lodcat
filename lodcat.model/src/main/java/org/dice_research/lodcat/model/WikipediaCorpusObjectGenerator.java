@@ -51,7 +51,8 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
     private File inputDirectory;
     private File outputFile;
     private String outputType;
-    private File nameFilterFile;
+    private File excludeNamesFile;
+    private File includeNamesFile;
     private Number limit;
 
     public static void main(String[] args) throws Exception {
@@ -59,7 +60,8 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
         options.addOption(Option.builder("i").longOpt("input").hasArg().type(File.class).required().desc("Input directory").build());
         options.addOption(Option.builder("o").longOpt("output").hasArg().type(File.class).required().desc("Output file").build());
         options.addOption(Option.builder("ot").longOpt("output-type").hasArg().desc("Output type (object.gz or xml)").build());
-        options.addOption(Option.builder("n").longOpt("name-filter").hasArg().type(File.class).desc("File with a list of document names to filter out").build());
+        options.addOption(Option.builder("exclude").longOpt("exclude-names").hasArg().type(File.class).desc("Exclude documents with names from the list in the file").build());
+        options.addOption(Option.builder("include").longOpt("include-names").hasArg().type(File.class).desc("Only include documents with names from the list in the file").build());
         options.addOption(Option.builder("l").longOpt("limit").hasArg().type(Number.class).desc("Stop after processing that many documents (for debugging)").build());
 
         CommandLineParser parser = new DefaultParser();
@@ -71,17 +73,19 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
         }
         File outputFile = (File) line.getParsedOptionValue("output");
         String outputType = line.getOptionValue("output-type", TYPE_OBJECT_GZ);
-        File nameFilterFile = (File) line.getParsedOptionValue("name-filter");
+        File excludeNamesFile = (File) line.getParsedOptionValue("exclude-names");
+        File includeNamesFile = (File) line.getParsedOptionValue("include-names");
         Number limit = ((Number) line.getParsedOptionValue("limit"));
 
-        (new WikipediaCorpusObjectGenerator(inputDirectory, outputFile, outputType, nameFilterFile, limit)).run();
+        (new WikipediaCorpusObjectGenerator(inputDirectory, outputFile, outputType, excludeNamesFile, includeNamesFile, limit)).run();
     }
 
-    public WikipediaCorpusObjectGenerator(File inputDirectory, File outputFile, String outputType, File nameFilterFile, Number limit) {
+    public WikipediaCorpusObjectGenerator(File inputDirectory, File outputFile, String outputType, File excludeNamesFile, File includeNamesFile, Number limit) {
         this.inputDirectory = inputDirectory;
         this.outputFile = outputFile;
         this.outputType = outputType;
-        this.nameFilterFile = nameFilterFile;
+        this.excludeNamesFile = excludeNamesFile;
+        this.includeNamesFile = includeNamesFile;
         this.limit = limit;
     }
 
@@ -91,8 +95,13 @@ public class WikipediaCorpusObjectGenerator implements Runnable {
         supplier = new XmlPartsBasedDocumentSupplier(inputDirectory);
 
         // Filter out documents by title
-        if (nameFilterFile != null) {
-            supplier = new DocumentFilteringSupplierDecorator(supplier, new DocumentNameFileFilter(nameFilterFile));
+        if (excludeNamesFile != null) {
+            supplier = new DocumentFilteringSupplierDecorator(supplier, new DocumentNameFileFilter(excludeNamesFile));
+        }
+
+        // Only leave documents by title
+        if (includeNamesFile != null) {
+            supplier = new DocumentFilteringSupplierDecorator(supplier, new DocumentNameFileFilter(includeNamesFile, true));
         }
 
         if (limit != null) {

@@ -18,20 +18,30 @@ import org.slf4j.LoggerFactory;
 public class DocumentNameFileFilter extends AbstractDocumentPropertyBasedFilter<DocumentName> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentNameFileFilter.class);
     private Set<String> names = new HashSet<>();
+    private boolean includeList;
 
-    public DocumentNameFileFilter(File file) {
+    public DocumentNameFileFilter(File file, boolean includeList) {
         super(DocumentName.class);
-        LOGGER.info("Reading the name filter list: {}", file);
+        this.includeList = includeList;
+        if (this.includeList) {
+            LOGGER.info("Reading the include name list: {}", file);
+        } else {
+            LOGGER.info("Reading the exclude name list: {}", file);
+        }
         try (Stream<String> lines = Files.lines(file.toPath())) {
             lines.forEach(names::add);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        LOGGER.info("Total names in the filter list: {}", names.size());
+        LOGGER.info("Total names in the list: {}", names.size());
+    }
+
+    public DocumentNameFileFilter(File file) {
+        this(file, false);
     }
 
     @Override
     protected boolean isDocumentPropertyGood(DocumentName name) {
-        return !names.contains(name.get());
+        return includeList ^ !names.contains(name.get());
     }
 }

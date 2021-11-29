@@ -25,7 +25,7 @@
 ## Create a corpus object from a splitted corpus
 
 ```
-./lodcat-generate-wiki-object --input <input directory> --output <output file> [--name-filter <file with list of doc names to filter out>]
+./lodcat-generate-wiki-object --input <input directory> --output <output file> [--output-type {object.gz|xml}] [--include-names <file>] [--exclude-names <file>]
 ```
 
 
