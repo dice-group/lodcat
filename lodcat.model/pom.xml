@@ -61,6 +61,10 @@
     </dependency>
     <dependency>
       <groupId>org.dice-research</groupId>
+      <artifactId>topicmodeling.io.gensim</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.dice-research</groupId>
       <artifactId>topicmodeling.wikipedia</artifactId>
     </dependency>
     <dependency>
