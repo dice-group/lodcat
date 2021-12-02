@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+from gensim.corpora.dictionary import Dictionary
+import argparse
+import logging
+import os
+
+logging.basicConfig(level=logging.DEBUG)
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--input', dest='input_dictionary_file', required=True, help='input gensim dictionary file')
+parser.add_argument('--output', dest='output_text_file', required=True, help='output text file')
+args = parser.parse_args()
+
+dictionary = Dictionary.load(args.input_dictionary_file)
+logging.info('Dictionary: %s', dictionary)
+
+output_text_dir = os.path.dirname(args.output_text_file)
+if output_text_dir: os.makedirs(os.path.dirname(args.output_text_file), exist_ok=True)
+dictionary.save_as_text(args.output_text_file)
