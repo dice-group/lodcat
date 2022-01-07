@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+from gensim.corpora import MmCorpus
+import logging
+import sys
+
+logging.basicConfig(level=logging.DEBUG)
+
+corpus = MmCorpus(sys.argv[1])
