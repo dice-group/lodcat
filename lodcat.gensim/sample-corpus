@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+from gensim import corpora
+from random import Random
+from tqdm import tqdm
+import argparse
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
+parser = argparse.ArgumentParser(description='Reduce the corpus size by random sampling')
+parser.add_argument('--input-corpus', dest='input_corpus_file', required=True, help='input corpus mm file')
+parser.add_argument('--output-corpus', dest='output_corpus_file', required=True, help='output mm file')
+parser.add_argument('--keep', required=True, type=float, help='ratio of documents to keep')
+parser.add_argument('--seed', required=True, type=int, help='random seed')
+args = parser.parse_args()
+
+rnd = Random(args.seed)
+keep = args.keep
+
+input_corpus = corpora.MmCorpus(args.input_corpus_file)
+output_corpus = []
+for doc in tqdm(input_corpus):
+    if rnd.random() < keep:
+        output_corpus.append(doc)
+
+corpora.MmCorpus.serialize(args.output_corpus_file, output_corpus)
