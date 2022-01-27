@@ -33,7 +33,7 @@ class DiceTopicModelingXmlCorpus(interfaces.CorpusABC):
         self.build_dictionary = False
 
     def prepare_document(self, keys=[], values=[], allocated=[], **kwargs):
-        if self.dictionary.origid2id is not None:
+        if hasattr(self.dictionary, 'origid2id'):
             return list((self.dictionary.origid2id[k], v) for k, v, a in zip(keys, values, allocated) if a and k in self.dictionary.origid2id)
         else:
             return list((k, v) for k, v, a in zip(keys, values, allocated) if a)
