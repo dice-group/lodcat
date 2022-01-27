@@ -23,7 +23,7 @@ logging.info('Dictionary: %s', dictionary)
 
 # Filter extremes and fix the dictionary.
 orig_token2id = dictionary.token2id
-dictionary.filter_extremes(no_below=20, no_above=0.5, keep_n=None)
+dictionary.filter_extremes(no_below=20, no_above=0.5, keep_n=100_000)
 dictionary.id2token = {id: token for token, id in dictionary.token2id.items()}
 dictionary.origid2id = {orig_token2id[token]: dictionary.token2id[token] for token in dictionary.token2id}
 
