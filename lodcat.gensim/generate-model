@@ -41,8 +41,9 @@ model_file = os.path.join(args.output_dir, MODEL_FILE)
 top_words_file = os.path.join(args.output_dir, TOP_WORDS_FILE)
 
 num_topics = args.num_topics
-chunksize = 100_000
-iterations = 1000
+chunksize = 100_000_000  # covers English Wikipedia
+passes = 10
+iterations = 100
 eval_every = 1000
 
 model = LdaModel(
@@ -53,7 +54,7 @@ model = LdaModel(
     eta='auto',
     iterations=iterations,
     num_topics=num_topics,
-    passes=1,  # one pass through the corpus
+    passes=passes,
     update_every=0,  # batch learning
     eval_every=eval_every
 )
