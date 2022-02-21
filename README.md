@@ -79,11 +79,17 @@ Then, run the classifier:
 ./lodcat-classification-report <model directory> <classification file> <output directory>
 ```
 
-#  Finding occurrence of namespaces in documents
+# Finding occurrence of namespaces in documents
 
 ```
 ./lodcat-uri-counts corpus/corpus.xml occurrence_dir
-./lodcat-uir-counts-report occurrence_dir/documents-per-namespace
+./lodcat-uri-counts-report occurrence_dir/documents-per-namespace
 ```
 
 CSVs and plots will be generated in the specified `occurrence_dir`.
+
+# Analyzing HDT document sizes in triples
+
+```
+./lodcat-document-rdf-size <directory with HDT files> <output directory> <number of jobs>
+```
