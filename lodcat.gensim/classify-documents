@@ -4,8 +4,10 @@ from gensim.models import LdaModel
 from lxml import etree
 from tqdm import tqdm
 import argparse
+import collections
 import csv
 import logging
+import operator
 import os
 
 
@@ -13,10 +15,6 @@ def cleanup_etree(elem):
     elem.clear()
     while elem.getprevious() is not None:
         del elem.getparent()[0]
-
-
-def classify_text(model, dictionary, text):
-    return model.get_document_topics(bow=dictionary.doc2bow(text.split()), minimum_probability=0)
 
 
 def classify_docs_file(model, dictionary, file):
@@ -31,7 +29,8 @@ def classify_docs_file(model, dictionary, file):
             if len(name) == 1 and len(text) == 1:
                 name = name[0].text
                 text = text[0].text
-                yield name, classify_text(model, dictionary, text)
+                bow = dictionary.doc2bow(text.split())
+                yield name, bow, *model.get_document_topics(bow=bow, minimum_probability=0, per_word_topics=True)
             total += 1
             if total % 10000 == 0:
                 logging.debug('Documents processed: %d', total)
@@ -46,7 +45,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--model-dir', dest='model_dir', required=True)
 parser.add_argument('--dictionary', dest='dictionary_file', required=True)
 parser.add_argument('--docs-dir', dest='docs_dir', required=True)
-parser.add_argument('--output-file', dest='output_file', required=True)
+parser.add_argument('--output-classification-file', dest='output_classification_file', required=True)
+parser.add_argument('--output-topic-size-file', dest='output_topic_size_file', required=True)
 args = parser.parse_args()
 
 dictionary = Dictionary.load(args.dictionary_file)
@@ -55,16 +55,29 @@ model_file = os.path.join(args.model_dir, MODEL_FILE)
 model = LdaModel.load(model_file)
 logging.info(f'Model: {model}')
 
-os.makedirs(os.path.dirname(args.output_file), exist_ok=True)
-with open(args.output_file, 'w') as csvfile:
-    csvwriter = csv.writer(csvfile)
-    files = [os.path.join(args.docs_dir, f) for f in os.listdir(args.docs_dir)]
-    files = [f for f in files if os.path.isfile(f) and f.endswith('.xml')]
-    with tqdm(files) as tfiles:
-        for f in tfiles:
-            tfiles.set_postfix_str(os.path.basename(f))
-            for name, data in classify_docs_file(model, dictionary, f):
-                data = {k: v for k, v in data}
-                probabilities = [data.get(i, 0) for i in range(model.num_topics)]
-                topic = probabilities.index(max(probabilities))
-                csvwriter.writerow([name, '', topic] + probabilities)
+os.makedirs(os.path.dirname(os.path.abspath(args.output_classification_file)), exist_ok=True)
+classification_writer = csv.writer(open(args.output_classification_file, 'w'))
+topic_size = collections.defaultdict(int)
+files = [os.path.join(args.docs_dir, f) for f in os.listdir(args.docs_dir)]
+files = [f for f in files if os.path.isfile(f) and f.endswith('.xml')]
+with tqdm(files) as tfiles:
+    for f in tfiles:
+        tfiles.set_postfix_str(os.path.basename(f))
+        for name, bow, document_topics, word_topic, word_phi in classify_docs_file(model, dictionary, f):
+            #data = {k: v for k, v in document_topics}
+            # classification
+            document_topics = dict(document_topics)
+            probabilities = [document_topics.get(i, 0) for i in range(model.num_topics)]
+            topic = probabilities.index(max(probabilities))
+            classification_writer.writerow([name, '', topic] + probabilities)
+            # topic size
+            bow = dict(bow)
+            for word_type, topics_sorted in word_topic:
+                if len(topics_sorted) != 0:
+                    topic_size[topics_sorted[0]] += bow[word_type]
+
+
+topic_size = sorted(topic_size.items(), key=operator.itemgetter(1), reverse=True)
+logging.info('Topic size for the corpus: %s', topic_size)
+os.makedirs(os.path.dirname(os.path.abspath(args.output_topic_size_file)), exist_ok=True)
+csv.writer(open(args.output_topic_size_file, 'w')).writerows(topic_size)
