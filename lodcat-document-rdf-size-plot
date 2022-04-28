@@ -1,0 +1,18 @@
+#!/bin/bash
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+set -a; . "$LODCAT_DIR"/.env; set +a
+
+CSV_FILE="$1"
+
+awk -F ';' '{ print $2+0 }' $1 |sort -rnk 1 >$1.curve
+gnuplot -c triple-counts-curve.gnuplot "$1.curve" "$1.curve.png"
+
+awk -F ';' '{ S[$2]++ } END { for (a in S) { printf "%d\t%d\n", a, S[a] } }' $1 |sort -nk 1 >$1.points
+
+gnuplot -c triple-counts-points.gnuplot "$1.points" "$1.points.png"
+
+perl -ane 'use POSIX "ceil"; BEGIN { @a = qw(0 1-10 11-100 101-1000 1001-10000 10001-100000 100001-1000000 >1000000) }; $s[$F[0] < 0.5 ? 0 : $F[0] < 1.5 ? 1 : $F[0] > substr($a[-1], 1) ? $#a : ceil(log($F[0])/log(10))] += $F[1]; END { for ($i = 0; $i < @a; $i++) { print "$i \"$a[$i]\" $s[$i]\n" } }' <"$1.points" >"$1.hist"
+
+gnuplot -c triple-counts-hist.gnuplot "$1.hist" "$1.hist.png"

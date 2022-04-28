@@ -1,0 +1,21 @@
+#!/bin/bash
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+set -a; . "$LODCAT_DIR"/.env; set +a
+
+CSV_FILE="$1"
+
+awk -F, '{ S[$3]++ } END { for (a in S) { printf "%d\t%d\n", a, S[a] } }' "$1" |sort -rnk 2 >"$1.points"
+
+echo "
+set terminal png
+set output '$1.points.png'
+set logscale y
+unset key
+set title 'Lod-a-lot documents per LODCat topic'
+set xlabel 'Topics'
+set ylabel 'Number of documents'
+set yrange [0.5:]
+plot '$1.points' using 2 with boxes fill solid
+" |gnuplot

@@ -1,0 +1,15 @@
+#!/bin/bash
+set -eu
+
+function cleanup {
+    echo -n "Removing container: "
+    docker rm netl
+}
+
+trap cleanup EXIT
+
+docker run \
+-v "$(realpath "$1")":/data/topics.csv \
+--name netl dicegroup/netl
+docker cp netl:/usr/src/app/model_run/output_unsupervised "$1".unsupervised-labels
+docker cp netl:/usr/src/app/model_run/output_supervised "$1".supervised-labels

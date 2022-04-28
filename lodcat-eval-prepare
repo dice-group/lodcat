@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+INPUT_FILE=$1
+OUTPUT_DIR=$(dirname "$INPUT_FILE")
+
+wc -l "$INPUT_FILE" >&2
+awk -F ";" '$2 > 100 && $2 < 10000 { print $1 }' "$INPUT_FILE" >$INPUT_FILE.filtered
+wc -l "$INPUT_FILE.filtered" >&2
+shuf -n 50 "$INPUT_FILE.filtered" >"$INPUT_FILE.sample"
+lodcat.gensim/topwords-for-documents --names "$INPUT_FILE.sample" --corpora "$2" --output "$OUTPUT_DIR/top_words"
+
+find "$OUTPUT_DIR/top_words" -exec ./lodcat-generate-labels-2 {} \;

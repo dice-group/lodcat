@@ -1,0 +1,9 @@
+#!/bin/bash
+set -eu
+
+LODCAT_DIR="$(dirname $(realpath $0))"
+set -a; . "$LODCAT_DIR"/.env; set +a
+
+MODEL_DIR="$1"
+
+gnuplot -c lodcat-model-topic-quality-plot.gnuplot <(sort -rn "$1/quality-C_P.csv") "$1/quality-C_P.png" $(wc -l <"$1/quality-C_P.csv")
