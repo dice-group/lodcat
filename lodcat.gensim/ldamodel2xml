@@ -21,6 +21,9 @@ corpus = MmCorpus(args.corpus)
 
 with etree.xmlfile(args.output) as xml:
     with xml.element('ldamodel'):
+        if len(model.eta.shape) == 1:
+            with xml.element('eta'):
+                xml.write(str(model.eta.mean()))
         with xml.element('numberOfTopics'):
             xml.write(str(model.num_topics))
         with xml.element('dictionary'):
