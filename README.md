@@ -7,8 +7,14 @@
 * Add the input files to the processing queue for the label extraction: `DATA_DIR=your_data_dir make queue-all-files`.
 * Start the label extraction process: `make extract` (can run in parallel with the previous step). All extracted labels are added to the database.
 * Generate the corpus file: `./lodcat-generate-corpus your_data_dir corpus/corpus.xml`. File `corpus/corpus.xml` will be generated.
-* Generate the object file: `make generate-object`. File `object/object.gz` will be generated.
+* Generate the object file: `./lodcat-generate-object corpus/corpus.xml object/object.gz`. File `object/object.gz` will be generated.
 * Generate the model file: `make generate-model`. File `model/model.gz` will be generated.
+
+## Generate a list of redirect article titles from a Wikipedia dump
+
+```
+./list-wikidump-redirects <(bzcat *-pages-articles-multistream.xml.bz2) >redirects.txt
+```
 
 ## Split each XML corpus file in a directory to multiple files
 
@@ -58,7 +64,7 @@ Output: `labels-supervised.csv`, `labels-unsupervised.csv` with label candidates
 
 Output: `micro-quality.csv`, `micro-quality.png`.
 
-CSV and corresponding plot will be generated in the specified output directory.
+CSV and a corresponding plot will be generated in the specified output directory.
 
 # Classifying documents
 
