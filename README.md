@@ -1,6 +1,6 @@
 # LODCat
 
-<img style="height: auto; width: auto; max-width: 300px; max-height: 300px;" src="https://files.dice-research.org/projects/LODCat/LODCat.png">
+<img style="height: auto; width: auto; max-width: 150px; max-height: 150px;" src="https://files.dice-research.org/projects/LODCat/LODCat.png">
 
 ## How to use
 
