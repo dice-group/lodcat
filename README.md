@@ -1,5 +1,7 @@
 # LODCat
 
+<img style="height: auto; width: auto; max-width: 300px; max-height: 300px;" src="https://files.dice-research.org/projects/LODCat/LODCat.png">
+
 ## How to use
 
 * Place the input `.ttl` files in some directory `your_data_dir`.
