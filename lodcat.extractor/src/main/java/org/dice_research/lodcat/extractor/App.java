@@ -108,11 +108,9 @@ public class App {
     }
 
     static void processHDT(String rdfFileName, Consumer<String[]> handler) throws Exception {
-        LOGGER.debug("Processing HDT file: {}", rdfFileName);
-
-        HDT hdt = HDTManager.loadHDT(rdfFileName, null);
         int extracted = 0;
         int total = 0;
+        try (HDT hdt = HDTManager.loadHDT(rdfFileName, null)) {
         for (Map.Entry<String, String> type : types.entrySet()) {
             IteratorTripleString iter = hdt.search("", type.getKey(), "");
             while (iter.hasNext()) {
@@ -139,6 +137,9 @@ public class App {
                 }
                 total += 1;
             }
+        }
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Failed to load HDT file: {}", rdfFileName, e);
         }
         LOGGER.info("Found {} triples, extracted {} labels", total, extracted);
     }
